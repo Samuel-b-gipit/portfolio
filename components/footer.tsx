@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { Github, Linkedin, Twitter, Mail } from 'lucide-react'
+import { motion } from "framer-motion";
+import { Github, Linkedin, Twitter, Mail } from "lucide-react";
 
 export default function Footer() {
-  const currentYear = new Date().getFullYear()
+  const currentYear = new Date().getFullYear();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -14,7 +14,7 @@ export default function Footer() {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -22,7 +22,7 @@ export default function Footer() {
       opacity: 1,
       y: 0,
     },
-  }
+  };
 
   return (
     <footer className="relative border-t border-border bg-background/50 backdrop-blur-sm">
@@ -35,17 +35,21 @@ export default function Footer() {
           viewport={{ once: true }}
         >
           {/* Brand */}
-          <motion.div variants={itemVariants} className="text-center md:text-left">
+          <motion.div
+            variants={itemVariants}
+            className="text-center md:text-left"
+          >
             <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
-              Portfolio
+              Samuel Gipit
             </h3>
-            <p className="text-foreground/60 text-sm">
-              Creating amazing digital experiences
-            </p>
+            <p className="text-foreground/60 text-sm">Software Engineer</p>
           </motion.div>
 
           {/* Links */}
-          <motion.div variants={itemVariants} className="flex justify-center gap-4">
+          <motion.div
+            variants={itemVariants}
+            className="flex justify-center gap-4"
+          >
             <motion.a
               href="/"
               className="text-foreground/60 hover:text-accent transition-colors text-sm font-medium"
@@ -82,10 +86,14 @@ export default function Footer() {
             className="flex justify-center md:justify-end gap-4"
           >
             {[
-              { icon: Github, href: 'https://github.com', label: 'GitHub' },
-              { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
-              { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
-              { icon: Mail, href: 'mailto:hello@example.com', label: 'Email' },
+              { icon: Github, href: "https://github.com", label: "GitHub" },
+              {
+                icon: Linkedin,
+                href: "https://linkedin.com",
+                label: "LinkedIn",
+              },
+              { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+              { icon: Mail, href: "mailto:hello@example.com", label: "Email" },
             ].map((social) => (
               <motion.a
                 key={social.label}
@@ -114,10 +122,11 @@ export default function Footer() {
           viewport={{ once: true }}
         >
           <p>
-            © {currentYear} Your Name. All rights reserved. • Built with Next.js, React Three Fiber & Framer Motion
+            © {currentYear} Samuel Gipit. All rights reserved. • Built with
+            Next.js, React Three Fiber &amp; Framer Motion
           </p>
         </motion.div>
       </div>
     </footer>
-  )
+  );
 }

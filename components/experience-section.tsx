@@ -1,54 +1,80 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
 
 interface Experience {
-  title: string
-  company: string
-  period: string
-  description: string
-  highlights: string[]
+  title: string;
+  system: string;
+  company: string;
+  period: string;
+  description: string;
+  highlights: string[];
 }
 
 const EXPERIENCES: Experience[] = [
   {
-    title: 'Senior Full Stack Developer',
-    company: 'Tech Innovations Inc',
-    period: '2022 - Present',
-    description: 'Leading development of scalable web applications and mentoring junior developers',
+    title: "Software Engineer",
+    system: "Payroll Information System",
+    company: "Quezon City Government",
+    period: "2025 – Present",
+    description:
+      "Central payroll engine connecting all HRIS modules to generate accurate compensation reports.",
     highlights: [
-      'Architected microservices infrastructure handling 1M+ daily requests',
-      'Reduced load times by 60% through optimization and caching strategies',
-      'Led team of 5 developers in agile environment',
+      "Designed payroll calculation engine integrating position, salary grade, attendance, and benefit data",
+      "Implemented validation rules to detect and prevent payroll discrepancies",
+      "Integrated mandatory deductions and benefit computations across all employee types",
+      "Built secure access layers for salary data visibility with audit-ready report generation",
     ],
   },
   {
-    title: 'Full Stack Engineer',
-    company: 'Digital Solutions Co',
-    period: '2020 - 2022',
-    description: 'Developed end-to-end web solutions for enterprise clients',
+    title: "Software Engineer",
+    system: "Personnel Selection Board (PSB) System",
+    company: "Quezon City Government",
+    period: "2024 – 2025",
+    description:
+      "Enterprise hiring workflow system supporting department-level approval processes across the city government.",
     highlights: [
-      'Built 15+ client projects using React and Node.js',
-      'Implemented real-time features using WebSockets',
-      'Established development best practices and code standards',
+      "Designed configurable multi-step approval engine for department-level hiring workflows",
+      "Implemented role-based access control for Admin, Reviewer, and Approver roles",
+      "Built audit logging for complete decision traceability across all workflow transitions",
+      "Applied optimistic locking to prevent race conditions in concurrent approvals",
+      "Supported 17,000+ active users across city departments",
     ],
   },
   {
-    title: 'Junior Developer',
-    company: 'StartUp Labs',
-    period: '2019 - 2020',
-    description: 'Started career building responsive web applications',
+    title: "Software Engineer",
+    system: "COS / Non-Plantilla Hiring & Contract Management",
+    company: "Quezon City Government",
+    period: "2024 – 2025",
+    description:
+      "Contract-based hiring workflow with bundled application processing and full contract lifecycle management.",
     highlights: [
-      'Developed responsive UI components using React',
-      'Collaborated with design team to implement mockups',
-      'Learned and applied modern web development practices',
+      "Developed application bundling system for automated contract generation",
+      "Enforced atomic uniqueness of contract numbers to prevent duplicate issuance",
+      "Implemented contract versioning (v1, v2, v3…) with rollback support",
+      "Designed lifecycle management: Draft → Pending → Approved → Archived",
+      "Added concurrency safeguards and status-based validation constraints",
     ],
   },
-]
+  {
+    title: "Software Engineer",
+    system: "HRIS Dependency Modules",
+    company: "Quezon City Government",
+    period: "2024",
+    description:
+      "Core data libraries powering the HRIS ecosystem — Position Library and Salary Grade Management.",
+    highlights: [
+      "Designed versioned position catalog with historical salary reference consistency",
+      "Linked position versions directly to payroll computation logic for accuracy",
+      "Built salary grade mapping module with grade-based compensation computation",
+      "Enforced validation rules for grade transitions across all HRIS modules",
+    ],
+  },
+];
 
 export default function ExperienceSection() {
-  const { ref, inView } = useInView({ threshold: 0.1, once: true })
+  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -58,7 +84,7 @@ export default function ExperienceSection() {
         staggerChildren: 0.2,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, x: -20 },
@@ -67,21 +93,27 @@ export default function ExperienceSection() {
       x: 0,
       transition: { duration: 0.8 },
     },
-  }
+  };
 
   return (
-    <section id="experience" className="relative bg-gradient-to-b from-background to-primary/5 py-20 px-4 md:py-32">
+    <section
+      id="experience"
+      className="relative bg-gradient-to-b from-background to-primary/5 py-20 px-4 md:py-32"
+    >
       <div className="mx-auto max-w-4xl">
         <motion.div
           ref={ref}
           initial="hidden"
-          animate={inView ? 'visible' : 'hidden'}
+          animate={inView ? "visible" : "hidden"}
           variants={containerVariants}
         >
           <motion.div className="mb-16 text-center" variants={itemVariants}>
-            <h2 className="mb-4 text-4xl font-bold text-balance md:text-5xl">Experience</h2>
+            <h2 className="mb-4 text-4xl font-bold text-balance md:text-5xl">
+              Experience
+            </h2>
             <p className="mx-auto max-w-2xl text-lg text-foreground/70">
-              A timeline of my professional journey and key achievements
+              Enterprise systems built for the Quezon City Government, serving
+              thousands of employees across HR, payroll, and contract workflows.
             </p>
           </motion.div>
 
@@ -91,7 +123,7 @@ export default function ExperienceSection() {
 
             {EXPERIENCES.map((experience, idx) => (
               <motion.div
-                key={experience.company}
+                key={experience.system}
                 variants={itemVariants}
                 className="relative pl-20"
               >
@@ -109,13 +141,21 @@ export default function ExperienceSection() {
                 <div className="rounded-lg border border-border bg-card/50 p-6 backdrop-blur-sm transition-all hover:border-accent/50 hover:bg-card/80">
                   <div className="mb-2 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                     <div>
-                      <h3 className="text-2xl font-bold text-foreground">{experience.title}</h3>
-                      <p className="text-lg text-primary font-medium">{experience.company}</p>
+                      <h3 className="text-xl font-bold text-foreground leading-snug">
+                        {experience.system}
+                      </h3>
+                      <p className="text-sm text-primary font-medium mt-0.5">
+                        {experience.title} · {experience.company}
+                      </p>
                     </div>
-                    <span className="text-sm font-medium text-accent whitespace-nowrap">{experience.period}</span>
+                    <span className="text-sm font-medium text-accent whitespace-nowrap">
+                      {experience.period}
+                    </span>
                   </div>
 
-                  <p className="mb-4 text-foreground/70 leading-relaxed">{experience.description}</p>
+                  <p className="mb-4 text-foreground/70 leading-relaxed">
+                    {experience.description}
+                  </p>
 
                   {/* Highlights */}
                   <ul className="space-y-2">
@@ -124,8 +164,13 @@ export default function ExperienceSection() {
                         key={hidx}
                         className="flex items-start gap-3 text-foreground/80"
                         initial={{ opacity: 0, x: -10 }}
-                        animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }}
-                        transition={{ delay: idx * 0.2 + hidx * 0.1, duration: 0.5 }}
+                        animate={
+                          inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }
+                        }
+                        transition={{
+                          delay: idx * 0.2 + hidx * 0.1,
+                          duration: 0.5,
+                        }}
                       >
                         <span className="mt-1.5 h-2 w-2 rounded-full bg-accent flex-shrink-0" />
                         <span>{highlight}</span>
@@ -139,5 +184,5 @@ export default function ExperienceSection() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

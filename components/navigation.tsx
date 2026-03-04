@@ -1,28 +1,28 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
 
 export default function Navigation() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
-    }
+      setIsScrolled(window.scrollY > 50);
+    };
 
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navLinks = [
-    { name: 'Projects', href: '#projects' },
-    { name: 'Experience', href: '#experience' },
-    { name: 'About', href: '#about' },
-    { name: 'Contact', href: '#contact' },
-  ]
+    { name: "Projects", href: "#projects" },
+    { name: "Experience", href: "#experience" },
+    { name: "About", href: "#about" },
+    { name: "Contact", href: "#contact" },
+  ];
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -32,7 +32,7 @@ export default function Navigation() {
         staggerChildren: 0.1,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: -10 },
@@ -40,14 +40,16 @@ export default function Navigation() {
       opacity: 1,
       y: 0,
     },
-  }
+  };
 
   return (
     <>
       {/* Desktop Navigation */}
       <motion.nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-background/80 backdrop-blur-md border-b border-border' : 'bg-transparent'
+          isScrolled
+            ? "bg-background/80 backdrop-blur-md border-b border-border"
+            : "bg-transparent"
         }`}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -61,7 +63,8 @@ export default function Navigation() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Portfolio
+            <span className="hidden sm:inline">Samuel Gipit</span>
+            <span className="sm:hidden">SG</span>
           </motion.a>
 
           {/* Desktop Menu */}
@@ -113,7 +116,9 @@ export default function Navigation() {
         <motion.div
           className="md:hidden overflow-hidden bg-background/95 backdrop-blur-md border-t border-border"
           initial={{ height: 0, opacity: 0 }}
-          animate={isOpen ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }}
+          animate={
+            isOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }
+          }
           transition={{ duration: 0.3 }}
         >
           <div className="px-4 py-4 space-y-4">
@@ -141,5 +146,5 @@ export default function Navigation() {
         </motion.div>
       </motion.nav>
     </>
-  )
+  );
 }

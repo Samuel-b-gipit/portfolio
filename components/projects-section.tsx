@@ -1,65 +1,81 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { useInView } from 'react-intersection-observer'
-import { ExternalLink, Github } from 'lucide-react'
+import { motion } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { ExternalLink, Github } from "lucide-react";
 
 interface Project {
-  title: string
-  description: string
-  image: string
-  technologies: string[]
+  title: string;
+  description: string;
+  image: string;
+  technologies: string[];
   links: {
-    github?: string
-    demo?: string
-  }
+    github?: string;
+    demo?: string;
+  };
 }
 
 const PROJECTS: Project[] = [
   {
-    title: 'Interactive Data Dashboard',
-    description: 'Real-time analytics dashboard with advanced data visualization and predictive insights',
-    image: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    technologies: ['React', 'Three.js', 'TypeScript', 'Recharts'],
+    title: "AI-Assisted Workflow Builder",
+    description:
+      "Intelligent workflow system that dynamically generates approval chains and validation logic based on organizational rules.",
+    image: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    technologies: [
+      "Next.js",
+      "TypeScript",
+      "Node.js",
+      "PostgreSQL",
+      "OpenAI API",
+    ],
     links: {
-      github: 'https://github.com',
-      demo: 'https://demo.example.com',
+      github: "https://github.com",
+      demo: "https://demo.example.com",
     },
   },
   {
-    title: 'E-Commerce Platform',
-    description: 'Full-stack e-commerce solution with payment integration and inventory management',
-    image: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    technologies: ['Next.js', 'Stripe', 'PostgreSQL', 'Tailwind CSS'],
+    title: "Full-Stack SaaS Starter Platform",
+    description:
+      "Production-ready SaaS foundation with JWT authentication, subscription billing, and modular REST API architecture.",
+    image: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+    technologies: [
+      "Next.js",
+      "Node.js",
+      "PostgreSQL",
+      "Stripe",
+      "Tailwind CSS",
+    ],
     links: {
-      github: 'https://github.com',
-      demo: 'https://demo.example.com',
+      github: "https://github.com",
+      demo: "https://demo.example.com",
     },
   },
   {
-    title: 'AI Chat Application',
-    description: 'Intelligent conversational AI with custom model fine-tuning and real-time responses',
-    image: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    technologies: ['Next.js', 'OpenAI API', 'WebSockets', 'PostgreSQL'],
+    title: "Contract Versioning System",
+    description:
+      "Standalone contract lifecycle management with version tracking, atomic uniqueness enforcement, and concurrency safeguards.",
+    image: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+    technologies: ["Node.js", "PostgreSQL", "Prisma", "Express"],
     links: {
-      github: 'https://github.com',
-      demo: 'https://demo.example.com',
+      github: "https://github.com",
+      demo: "https://demo.example.com",
     },
   },
   {
-    title: '3D Motion Graphics',
-    description: 'Immersive 3D experience with physics simulation and interactive controls',
-    image: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    technologies: ['Three.js', 'Framer Motion', 'GSAP', 'Canvas'],
+    title: "Reverse Hiring App",
+    description:
+      "Employer-focused recruitment platform where employers browse applicant profiles and send proposals directly.",
+    image: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+    technologies: ["Next.js", "Node.js", "PostgreSQL", "Tailwind CSS"],
     links: {
-      github: 'https://github.com',
-      demo: 'https://demo.example.com',
+      github: "https://github.com",
+      demo: "https://demo.example.com",
     },
   },
-]
+];
 
 export default function ProjectsSection() {
-  const { ref, inView } = useInView({ threshold: 0.1, once: true })
+  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -69,7 +85,7 @@ export default function ProjectsSection() {
         staggerChildren: 0.2,
       },
     },
-  }
+  };
 
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -78,21 +94,27 @@ export default function ProjectsSection() {
       y: 0,
       transition: { duration: 0.8 },
     },
-  }
+  };
 
   return (
-    <section id="projects" className="relative overflow-hidden bg-background py-20 px-4 md:py-32">
+    <section
+      id="projects"
+      className="relative overflow-hidden bg-background py-20 px-4 md:py-32"
+    >
       <div className="mx-auto max-w-7xl">
         <motion.div
           ref={ref}
           initial="hidden"
-          animate={inView ? 'visible' : 'hidden'}
+          animate={inView ? "visible" : "hidden"}
           variants={containerVariants}
         >
           <motion.div className="mb-16 text-center" variants={itemVariants}>
-            <h2 className="mb-4 text-4xl font-bold text-balance md:text-5xl">Featured Projects</h2>
+            <h2 className="mb-4 text-4xl font-bold text-balance md:text-5xl">
+              Featured Projects
+            </h2>
             <p className="mx-auto max-w-2xl text-lg text-foreground/70">
-              A selection of recent work showcasing full-stack development, creative design, and innovative solutions
+              A selection of personal and side projects demonstrating full-stack
+              architecture, workflow design, and scalable system patterns.
             </p>
           </motion.div>
 
@@ -111,8 +133,12 @@ export default function ProjectsSection() {
 
                 <div className="relative p-6 md:p-8">
                   {/* Project Title and Description */}
-                  <h3 className="mb-3 text-2xl font-bold text-foreground">{project.title}</h3>
-                  <p className="mb-6 text-foreground/70 leading-relaxed">{project.description}</p>
+                  <h3 className="mb-3 text-2xl font-bold text-foreground">
+                    {project.title}
+                  </h3>
+                  <p className="mb-6 text-foreground/70 leading-relaxed">
+                    {project.description}
+                  </p>
 
                   {/* Technologies */}
                   <div className="mb-6 flex flex-wrap gap-2">
@@ -167,5 +193,5 @@ export default function ProjectsSection() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

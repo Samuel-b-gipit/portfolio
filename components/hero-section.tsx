@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { Canvas } from '@react-three/fiber'
-import { Suspense } from 'react'
-import { motion } from 'framer-motion'
-import ParticleScene from './3d/particle-scene'
+import { Canvas } from "@react-three/fiber";
+import { Suspense } from "react";
+import { motion } from "framer-motion";
+import ParticleScene from "./3d/particle-scene";
 
 export default function HeroSection() {
   return (
@@ -25,22 +25,36 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
+          <motion.div
+            className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-sm font-medium text-accent"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Mid-Level Software Engineer
+          </motion.div>
+
           <motion.h1
             className="mb-6 text-5xl font-bold text-balance md:text-7xl"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            Creative <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Developer</span>
+            Samuel{" "}
+            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Gipit
+            </span>
           </motion.h1>
-          
+
           <motion.p
             className="mx-auto mb-8 max-w-2xl text-lg text-foreground/70 text-balance md:text-xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            Building innovative digital experiences with cutting-edge web technologies and 3D design
+            Building enterprise-grade HR systems and scalable full-stack
+            applications with a focus on data integrity, workflow architecture,
+            and performance.
           </motion.p>
 
           <motion.div
@@ -75,10 +89,20 @@ export default function HeroSection() {
         animate={{ y: [0, 10, 0] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        <svg className="h-6 w-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        <svg
+          className="h-6 w-6 text-accent"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 14l-7 7m0 0l-7-7m7 7V3"
+          />
         </svg>
       </motion.div>
     </section>
-  )
+  );
 }
