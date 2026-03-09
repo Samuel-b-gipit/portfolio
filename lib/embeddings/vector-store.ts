@@ -60,7 +60,7 @@ export async function storeEmbeddings(
       metadata: item.metadata,
     }));
 
-    await kv.set(EMBEDDINGS_KEY, JSON.stringify(storedData));
+    await kv.set(EMBEDDINGS_KEY, storedData);
     console.log(`Stored ${embeddings.length} embeddings in KV`);
   } catch (error) {
     console.error("Error storing embeddings:", error);
@@ -75,13 +75,13 @@ export async function storeEmbeddings(
  */
 export async function getEmbeddings(): Promise<StoredEmbedding[]> {
   try {
-    const data = await kv.get<string>(EMBEDDINGS_KEY);
+    const data = await kv.get<StoredEmbedding[]>(EMBEDDINGS_KEY);
 
     if (!data) {
       return [];
     }
 
-    return JSON.parse(data);
+    return data;
   } catch (error) {
     console.error("Error retrieving embeddings:", error);
     throw new Error(

@@ -105,7 +105,7 @@ Remember: You can ONLY answer questions about Samuel's professional work, projec
 
     // Create streaming response using AI SDK
     const result = await streamText({
-      model: google("gemini-2.0-flash-exp"),
+      model: google("gemini-2.0-flash"),
       messages: aiMessages,
       temperature: 0.7,
     });
