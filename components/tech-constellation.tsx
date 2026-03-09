@@ -26,13 +26,14 @@ interface Edge {
 
 // ─── Config ────────────────────────────────────────────────────────────────────
 
-const SVG_SIZE = 480;
-const CENTER: Point = { x: 240, y: 240 };
-const MIN_RADIUS = 130;
-const MAX_RADIUS = 215;
-const MIN_NODE_DIST = 80;
-const NODE_SIZE = 48;
-const CENTER_SIZE = 116;
+// 2x larger overall scale
+const SVG_SIZE = 960;
+const CENTER: Point = { x: 480, y: 480 };
+const MIN_RADIUS = 260; // 2x (130 * 2)
+const MAX_RADIUS = 430; // 2x (215 * 2)
+const MIN_NODE_DIST = 160; // 2x (80 * 2)
+const NODE_SIZE = 96; // 2x (48 * 2)
+const CENTER_SIZE = 232; // 2x (116 * 2)
 
 const TECHS = [
   { id: "react", label: "React", icon: "/hero/React.png" },
@@ -134,9 +135,9 @@ function generateEdges(positions: Point[]): Edge[] {
   });
 }
 
-// Pre-computed at module load — pure maths, no side-effects, SSR-safe
-const NODE_POSITIONS = generateNodePositions();
-const EDGES = generateEdges(NODE_POSITIONS);
+// Pre-computed initial positions — will be regenerated on click
+let NODE_POSITIONS = generateNodePositions();
+let EDGES = generateEdges(NODE_POSITIONS);
 
 // ─── NodeItem ──────────────────────────────────────────────────────────────────
 
@@ -145,6 +146,7 @@ interface NodeItemProps {
   pos: Point;
   idx: number;
   isDark: boolean;
+  isHovered: boolean;
   onHover: (idx: number | null) => void;
   smoothX: MotionValue<number>;
   smoothY: MotionValue<number>;
@@ -155,6 +157,7 @@ function NodeItem({
   pos,
   idx,
   isDark,
+  isHovered,
   onHover,
   smoothX,
   smoothY,
@@ -181,31 +184,40 @@ function NodeItem({
     >
       {/* Parallax layer — shifts with mouse position */}
       <motion.div className="w-full h-full" style={{ x: px, y: py }}>
-        {/* Float + hover layer */}
+        {/* Floating node without container — only icon or text visible */}
         <motion.div
-          className="w-full h-full rounded-full bg-card/90 border border-primary/30 shadow-sm flex items-center justify-center overflow-hidden cursor-default"
-          animate={{ y: [0, -6, 0] }}
+          className="w-full h-full flex items-center justify-center overflow-hidden cursor-default"
+          animate={{ y: [0, -12, 0] }}
           transition={{
             duration: 3.5,
             repeat: Infinity,
             ease: "easeInOut",
             delay: idx * 0.4,
           }}
-          whileHover={{ scale: 1.18 }}
+          whileHover={isHovered ? { scale: 1.25 } : {}}
         >
           {isDark ? (
-            <Image
-              src={tech.icon}
-              alt={tech.label}
-              width={30}
-              height={30}
-              className="w-7.5 h-7.5 object-contain"
-              unoptimized
-            />
+            <motion.div
+              animate={isHovered ? { filter: "drop-shadow(0 0 12px hsl(var(--primary)))" } : { filter: "drop-shadow(0 0 0px hsl(var(--primary)))" }}
+              transition={{ duration: 0.25 }}
+            >
+              <Image
+                src={tech.icon}
+                alt={tech.label}
+                width={60}
+                height={60}
+                className="w-15 h-15 object-contain"
+                unoptimized
+              />
+            </motion.div>
           ) : (
-            <span className="text-[9px] font-semibold text-foreground/80 text-center leading-tight px-1 select-none">
+            <motion.span 
+              className="text-xs font-bold text-foreground/90 text-center leading-tight px-2 select-none"
+              animate={isHovered ? { textShadow: "0 0 8px rgba(var(--primary), 0.5)" } : {}}
+              transition={{ duration: 0.25 }}
+            >
               {tech.label}
-            </span>
+            </motion.span>
           )}
         </motion.div>
       </motion.div>
@@ -218,6 +230,8 @@ function NodeItem({
 export default function TechConstellation() {
   const [mounted, setMounted] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [nodePositions, setNodePositions] = useState<Point[]>(NODE_POSITIONS);
+  const [edges, setEdges] = useState<Edge[]>(EDGES);
   const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -239,6 +253,15 @@ export default function TechConstellation() {
     rawY.set((e.clientY - rect.top - rect.height / 2) / (rect.height / 2));
   };
 
+  const regenerateConstellation = () => {
+    const newPositions = generateNodePositions();
+    const newEdges = generateEdges(newPositions);
+    NODE_POSITIONS = newPositions;
+    EDGES = newEdges;
+    setNodePositions(newPositions);
+    setEdges(newEdges);
+  };
+
   return (
     <motion.div
       className="flex flex-col items-center gap-4"
@@ -257,16 +280,33 @@ export default function TechConstellation() {
           rawY.set(0);
         }}
       >
-        {/* SVG: connection lines + flowing particles */}
+        {/* SVG: connection lines + flowing energy beams */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
           viewBox={`0 0 ${SVG_SIZE} ${SVG_SIZE}`}
           preserveAspectRatio="xMidYMid meet"
         >
-          {/* Connection lines */}
-          {EDGES.map((edge) => {
-            const start = edge.a === -1 ? CENTER : NODE_POSITIONS[edge.a];
-            const end = NODE_POSITIONS[edge.b];
+          <defs>
+            {/* Glow filter for lines */}
+            <filter id="lineGlow">
+              <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            {/* Beam gradient for energy effect */}
+            <linearGradient id="beamGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0" />
+              <stop offset="40%" stopColor="hsl(var(--primary))" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
+
+          {/* Connection lines — clearly visible with glow */}
+          {edges.map((edge) => {
+            const start = edge.a === -1 ? CENTER : nodePositions[edge.a];
+            const end = nodePositions[edge.b];
             const lit =
               hoveredIdx !== null &&
               (edge.a === hoveredIdx || edge.b === hoveredIdx);
@@ -278,41 +318,44 @@ export default function TechConstellation() {
                 x2={end.x}
                 y2={end.y}
                 stroke="hsl(var(--primary))"
-                strokeWidth={lit ? 1.3 : 0.75}
-                strokeOpacity={lit ? 0.65 : 0.2}
+                strokeWidth={lit ? 2 : 1.2}
+                strokeOpacity={lit ? 0.8 : 0.4}
+                filter="url(#lineGlow)"
                 style={{
-                  transition: "stroke-width 0.25s, stroke-opacity 0.25s",
+                  transition: "stroke-width 0.3s, stroke-opacity 0.3s",
                 }}
               />
             );
           })}
 
-          {/* Flowing energy particles */}
-          {EDGES.map((edge, i) => {
-            const start = edge.a === -1 ? CENTER : NODE_POSITIONS[edge.a];
-            const end = NODE_POSITIONS[edge.b];
+          {/* Flowing energy beams — animated beam effect */}
+          {edges.map((edge, i) => {
+            const start = edge.a === -1 ? CENTER : nodePositions[edge.a];
+            const end = nodePositions[edge.b];
             const dur = PARTICLE_DURATIONS[i % PARTICLE_DURATIONS.length];
             const pathFwd = `M ${start.x},${start.y} L ${end.x},${end.y}`;
             const pathRev = `M ${end.x},${end.y} L ${start.x},${start.y}`;
 
             return (
-              <g key={`particles-${edge.key}`}>
-                {/* Primary particle — purple, some edges travel in reverse */}
-                <circle r="1.8" fill="hsl(var(--primary))" opacity="0.9">
+              <g key={`beam-${edge.key}`}>
+                {/* Energy beam with gradient — moves along the line */}
+                <g opacity="0.7">
+                  <circle r="3.5" fill="url(#beamGradient)">
+                    <animateMotion
+                      path={i % 3 === 0 ? pathRev : pathFwd}
+                      dur={`${dur}s`}
+                      repeatCount="indefinite"
+                      begin="0s"
+                    />
+                  </circle>
+                </g>
+                {/* Trailing energy particle for visual depth */}
+                <circle r="1.8" fill="hsl(var(--accent))" opacity="0.6">
                   <animateMotion
                     path={i % 3 === 0 ? pathRev : pathFwd}
                     dur={`${dur}s`}
                     repeatCount="indefinite"
-                    begin="0s"
-                  />
-                </circle>
-                {/* Accent particle — gold, staggered by half-period */}
-                <circle r="1.4" fill="hsl(var(--accent))" opacity="0.65">
-                  <animateMotion
-                    path={pathFwd}
-                    dur={`${dur}s`}
-                    repeatCount="indefinite"
-                    begin={`${dur / 2}s`}
+                    begin={`${dur / 4}s`}
                   />
                 </circle>
               </g>
@@ -320,9 +363,9 @@ export default function TechConstellation() {
           })}
         </svg>
 
-        {/* Centre profile circle */}
-        <div
-          className="absolute rounded-full overflow-hidden bg-linear-to-br from-primary/20 via-card to-accent/20 border-2 border-primary/30 flex items-center justify-center z-10 shadow-lg shadow-primary/10"
+        {/* Centre profile circle — click to regenerate constellation */}
+        <motion.div
+          className="absolute rounded-full overflow-hidden bg-linear-to-br from-primary/20 via-card to-accent/20 border-2 border-primary/30 flex items-center justify-center z-10 shadow-lg shadow-primary/10 cursor-pointer"
           style={{
             width: CENTER_SIZE,
             height: CENTER_SIZE,
@@ -330,21 +373,25 @@ export default function TechConstellation() {
             top: "50%",
             transform: "translate(-50%, -50%)",
           }}
+          onClick={regenerateConstellation}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
         >
           {/* Replace with <Image src="/profile.jpg" … /> when ready */}
-          <span className="text-3xl font-bold bg-linear-to-br from-primary to-accent bg-clip-text text-transparent select-none">
+          <span className="text-5xl font-bold bg-linear-to-br from-primary to-accent bg-clip-text text-transparent select-none">
             SG
           </span>
-        </div>
+        </motion.div>
 
         {/* Technology nodes */}
         {TECHS.map((tech, i) => (
           <NodeItem
             key={tech.id}
             tech={tech}
-            pos={NODE_POSITIONS[i]}
+            pos={nodePositions[i]}
             idx={i}
             isDark={isDark}
+            isHovered={hoveredIdx === i}
             onHover={setHoveredIdx}
             smoothX={smoothX}
             smoothY={smoothY}
