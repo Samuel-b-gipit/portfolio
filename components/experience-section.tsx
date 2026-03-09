@@ -16,7 +16,7 @@ const EXPERIENCES: Experience[] = [
   {
     title: "Software Engineer",
     system: "Payroll Information System",
-    company: "Quezon City Government",
+    company: "Local Government Unit",
     period: "2025 – Present",
     description:
       "Central payroll engine connecting all HRIS modules to generate accurate compensation reports.",
@@ -30,7 +30,7 @@ const EXPERIENCES: Experience[] = [
   {
     title: "Software Engineer",
     system: "Personnel Selection Board (PSB) System",
-    company: "Quezon City Government",
+    company: "Local Government Unit",
     period: "2024 – 2025",
     description:
       "Enterprise hiring workflow system supporting department-level approval processes across the city government.",
@@ -45,7 +45,7 @@ const EXPERIENCES: Experience[] = [
   {
     title: "Software Engineer",
     system: "COS / Non-Plantilla Hiring & Contract Management",
-    company: "Quezon City Government",
+    company: "Local Government Unit",
     period: "2024 – 2025",
     description:
       "Contract-based hiring workflow with bundled application processing and full contract lifecycle management.",
@@ -60,7 +60,7 @@ const EXPERIENCES: Experience[] = [
   {
     title: "Software Engineer",
     system: "HRIS Dependency Modules",
-    company: "Quezon City Government",
+    company: "Local Government Unit",
     period: "2024",
     description:
       "Core data libraries powering the HRIS ecosystem — Position Library and Salary Grade Management.",
@@ -112,7 +112,7 @@ export default function ExperienceSection() {
               Experience
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-foreground/70">
-              Enterprise systems built for the Quezon City Government, serving
+              Enterprise systems built for the Local Government Unit, serving
               thousands of employees across HR, payroll, and contract workflows.
             </p>
           </motion.div>

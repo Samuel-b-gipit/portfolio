@@ -80,7 +80,7 @@ Demo: [Live Demo Link]
 
 ## Personnel Selection Board (PSB) System
 
-Client: Quezon City Government  
+Client: Local Government Unit  
 Role: Software Engineer
 
 Enterprise hiring workflow system supporting department-level approval processes.
@@ -96,7 +96,7 @@ Enterprise hiring workflow system supporting department-level approval processes
 
 ## COS / Non-Plantilla Hiring & Contract Management
 
-Client: Quezon City Government  
+Client: Local Government Unit  
 Role: Software Engineer
 
 Contract-based hiring workflow with bundled application processing.
@@ -112,7 +112,7 @@ Contract-based hiring workflow with bundled application processing.
 
 ## Payroll Information System
 
-Client: Quezon City Government  
+Client: Local Government Unit  
 Role: Software Engineer
 
 Central payroll engine connecting all HRIS modules to generate accurate compensation reports.
@@ -127,7 +127,7 @@ Central payroll engine connecting all HRIS modules to generate accurate compensa
 
 ## HRIS Dependency Modules
 
-Client: Quezon City Government  
+Client: Local Government Unit  
 Role: Software Engineer
 
 Core data libraries powering the HRIS ecosystem.
