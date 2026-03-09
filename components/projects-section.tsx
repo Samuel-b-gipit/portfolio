@@ -65,7 +65,7 @@ const PROJECTS: Project[] = [
     title: "Reverse Hiring App",
     description:
       "Employer-focused recruitment platform where employers browse applicant profiles and send proposals directly.",
-    image: "url('/reverse-hiring.png') center / 100% 100% no-repeat",
+    image: "/reverse-hiring.png",
     technologies: ["Next.js", "Node.js", "PostgreSQL", "Tailwind CSS"],
     links: {
       github: "https://github.com",
@@ -118,47 +118,43 @@ export default function ProjectsSection() {
             </p>
           </motion.div>
 
-          <div className="grid gap-8 md:grid-cols-2">
-            {PROJECTS.map((project, idx) => (
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {PROJECTS.map((project) => (
               <motion.div
                 key={project.title}
                 variants={itemVariants}
-                className="group relative overflow-hidden rounded-xl border border-border bg-card/50 backdrop-blur-sm transition-all hover:bg-card/80 hover:border-accent/50 min-h-[270px] flex flex-col"
+                className="group overflow-hidden rounded-xl border border-border bg-card/50 backdrop-blur-sm flex flex-col transition-all hover:border-accent/50 hover:shadow-lg hover:shadow-primary/5"
               >
-                {/* Background Image */}
-                <div
-                  className={`absolute inset-0 transition-opacity ${
-                    project.image.startsWith("url(")
-                      ? "opacity-25 group-hover:opacity-40"
-                      : "opacity-10 group-hover:opacity-20"
-                  }`}
-                  style={{ background: project.image }}
-                />
-
-                <div className="relative p-6 md:p-8 flex flex-col flex-1">
-                  {/* Title */}
-                  <div className="relative mb-4">
-                    <h3 className="text-2xl font-bold text-foreground">
-                      {project.title}
-                    </h3>
-                    {/* Tooltip — only for image cards */}
-                    {project.image.startsWith("url(") && (
-                      <div className="pointer-events-none absolute left-0 top-full z-20 mt-2 w-full rounded-lg border border-border bg-card/95 p-3 text-sm leading-relaxed text-foreground/80 shadow-xl backdrop-blur-sm opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-200">
-                        {project.description}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Description — visible only for gradient cards */}
-                  {!project.image.startsWith("url(") && (
-                    <p className="mb-6 text-foreground/70 leading-relaxed text-sm">
-                      {project.description}
-                    </p>
+                {/* Top: Image panel */}
+                <div className="relative h-48 overflow-hidden shrink-0">
+                  {project.image.startsWith("/") ? (
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: project.image }}
+                    />
                   )}
+                  {/* Fade to card bg at bottom edge */}
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-card/70 to-transparent" />
+                </div>
 
-                  {/* Bottom row: Code/Demo left, tech badges right */}
-                  <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex gap-4 flex-shrink-0">
+                {/* Bottom: Content */}
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="text-xl font-bold text-foreground mb-2">
+                    {project.title}
+                  </h3>
+                  <p className="text-foreground/65 leading-relaxed text-sm mb-4 flex-1">
+                    {project.description}
+                  </p>
+
+                  {/* Links + tech badges */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 mt-auto">
+                    <div className="flex gap-4 shrink-0">
                       {project.links.github && (
                         <motion.a
                           href={project.links.github}
@@ -189,7 +185,7 @@ export default function ProjectsSection() {
                       {project.technologies.map((tech) => (
                         <span
                           key={tech}
-                          className="inline-block rounded-full bg-primary/20 px-3 py-1 text-sm font-medium text-primary"
+                          className="inline-block rounded-full bg-primary/20 px-3 py-1 text-xs font-medium text-primary"
                         >
                           {tech}
                         </span>
@@ -197,13 +193,6 @@ export default function ProjectsSection() {
                     </div>
                   </div>
                 </div>
-
-                {/* Hover Border Effect */}
-                <motion.div
-                  className="absolute inset-0 rounded-xl border-2 border-transparent bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-20 pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 0.2 }}
-                />
               </motion.div>
             ))}
           </div>

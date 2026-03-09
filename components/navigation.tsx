@@ -1,12 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,7 +66,7 @@ export default function Navigation() {
           {/* Logo */}
           <motion.a
             href="/"
-            className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent"
+            className="text-2xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -86,9 +93,25 @@ export default function Navigation() {
                   {link.name}
                 </motion.a>
               ))}
+              {mounted && (
+                <motion.button
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                  className="rounded-lg p-2 text-foreground/80 hover:text-accent hover:bg-muted/50 transition-colors"
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  aria-label="Toggle theme"
+                >
+                  {theme === "dark" ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )}
+                </motion.button>
+              )}
               <motion.a
                 href="#contact"
-                className="rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-2 font-semibold text-primary-foreground transition-all hover:shadow-lg hover:shadow-primary/50"
+                className="rounded-lg bg-linear-to-r from-primary to-accent px-6 py-2 font-semibold text-primary-foreground transition-all hover:shadow-lg hover:shadow-primary/50"
                 variants={itemVariants}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -98,18 +121,34 @@ export default function Navigation() {
             </motion.div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <motion.button
-            className="md:hidden flex items-center gap-2"
-            onClick={() => setIsOpen(!isOpen)}
-            whileTap={{ scale: 0.9 }}
-          >
-            {isOpen ? (
-              <X className="h-6 w-6 text-foreground" />
-            ) : (
-              <Menu className="h-6 w-6 text-foreground" />
+          {/* Mobile actions */}
+          <div className="md:hidden flex items-center gap-1">
+            {mounted && (
+              <motion.button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 rounded-lg text-foreground/80 hover:text-accent transition-colors"
+                whileTap={{ scale: 0.9 }}
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
+              </motion.button>
             )}
-          </motion.button>
+            <motion.button
+              className="p-2 flex items-center"
+              onClick={() => setIsOpen(!isOpen)}
+              whileTap={{ scale: 0.9 }}
+            >
+              {isOpen ? (
+                <X className="h-6 w-6 text-foreground" />
+              ) : (
+                <Menu className="h-6 w-6 text-foreground" />
+              )}
+            </motion.button>
+          </div>
         </div>
 
         {/* Mobile Menu */}
@@ -135,7 +174,7 @@ export default function Navigation() {
             ))}
             <motion.a
               href="#contact"
-              className="block rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-2 font-semibold text-primary-foreground text-center transition-all hover:shadow-lg hover:shadow-primary/50"
+              className="block rounded-lg bg-linear-to-r from-primary to-accent px-6 py-2 font-semibold text-primary-foreground text-center transition-all hover:shadow-lg hover:shadow-primary/50"
               onClick={() => setIsOpen(false)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
