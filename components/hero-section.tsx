@@ -209,7 +209,7 @@ export default function HeroSection() {
 
       {/* Two-column content */}
       <div className="flex h-full items-center justify-center px-6 py-20 lg:px-12">
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-20 items-center">
           {/* ── LEFT: Photo + skill constellation ── */}
           <div className="order-2 lg:order-1 flex justify-center">
             <TechConstellation />
