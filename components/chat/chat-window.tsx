@@ -10,7 +10,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, AlertCircle } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageBubble, TypingIndicator } from "./message-bubble";
 import { ChatInput } from "./chat-input";
 import type { Message } from "@/lib/types/chat";
@@ -38,18 +37,43 @@ export function ChatWindow({
     "What technologies do you use?",
   ],
 }: ChatWindowProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const userScrolledUp = useRef(false);
+  const prevMessageCountRef = useRef(0);
 
-  // Auto-scroll to bottom when new messages arrive
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    userScrolledUp.current = distanceFromBottom > 50;
+  };
+
+  // Auto-scroll to bottom, but not if the user has manually scrolled up
   useEffect(() => {
-    if (messagesEndRef.current) {
+    const currentCount = messages.length;
+    const newMessageAdded = currentCount > prevMessageCountRef.current;
+    prevMessageCountRef.current = currentCount;
+
+    if (newMessageAdded) {
+      // A new message was added — reset scroll tracking and jump to bottom
+      userScrolledUp.current = false;
+    }
+
+    if (!userScrolledUp.current && messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isLoading]);
 
   // Filter out system messages for display
   const displayMessages = messages.filter((msg) => msg.role !== "system");
+
+  // Only show the typing indicator while waiting for the first streaming chunk
+  const lastMessage = displayMessages[displayMessages.length - 1];
+  const showTypingIndicator =
+    isLoading &&
+    (!lastMessage ||
+      lastMessage.role === "user" ||
+      (lastMessage.role === "assistant" && !lastMessage.content));
 
   return (
     <AnimatePresence>
@@ -79,7 +103,11 @@ export function ChatWindow({
 
             {/* Messages */}
             <CardContent className="flex-1 p-0 overflow-hidden flex flex-col">
-              <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+              <div
+                ref={scrollContainerRef}
+                onScroll={handleScroll}
+                className="flex-1 overflow-y-auto p-4"
+              >
                 {displayMessages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center p-4">
                     <div className="text-muted-foreground mb-4">
@@ -107,11 +135,16 @@ export function ChatWindow({
                   </div>
                 ) : (
                   <>
-                    {displayMessages.map((message) => (
-                      <MessageBubble key={message.id} message={message} />
-                    ))}
+                    {displayMessages.map((message) => {
+                      // Hide empty assistant messages while waiting for the first chunk
+                      if (message.role === "assistant" && !message.content)
+                        return null;
+                      return (
+                        <MessageBubble key={message.id} message={message} />
+                      );
+                    })}
 
-                    {isLoading && <TypingIndicator />}
+                    {showTypingIndicator && <TypingIndicator />}
 
                     {error && (
                       <motion.div
@@ -130,7 +163,7 @@ export function ChatWindow({
                     <div ref={messagesEndRef} />
                   </>
                 )}
-              </ScrollArea>
+              </div>
 
               {/* Input */}
               <ChatInput

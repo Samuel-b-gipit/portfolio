@@ -415,16 +415,27 @@ export default function TechConstellation() {
   const [mounted, setMounted] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [seed, setSeed] = useState(42);
+  const [nodePositions, setNodePositions] = useState<Point[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    const positions = generateNodePositions(seed);
+    setNodePositions(positions);
+    setEdges(generateEdges(positions));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const positions = generateNodePositions(seed);
+    setNodePositions(positions);
+    setEdges(generateEdges(positions));
+  }, [seed, mounted]);
 
   const isDark = mounted ? resolvedTheme === "dark" : true;
-
-  // Regenerate positions/edges when seed changes
-  const nodePositions = generateNodePositions(seed);
-  const edges = generateEdges(nodePositions);
 
   const handleCenterClick = useCallback(() => {
     setSeed((prev) => prev + Math.floor(Math.random() * 1000) + 1);
@@ -539,19 +550,20 @@ export default function TechConstellation() {
 
         {/* Technology nodes */}
         <AnimatePresence mode="wait">
-          {TECHS.map((tech, i) => (
-            <NodeItem
-              key={`${tech.id}-${seed}`}
-              tech={tech}
-              pos={nodePositions[i]}
-              idx={i}
-              isDark={isDark}
-              hoveredIdx={hoveredIdx}
-              onHover={setHoveredIdx}
-              smoothX={smoothX}
-              smoothY={smoothY}
-            />
-          ))}
+          {nodePositions.length > 0 &&
+            TECHS.map((tech, i) => (
+              <NodeItem
+                key={`${tech.id}-${seed}`}
+                tech={tech}
+                pos={nodePositions[i]}
+                idx={i}
+                isDark={isDark}
+                hoveredIdx={hoveredIdx}
+                onHover={setHoveredIdx}
+                smoothX={smoothX}
+                smoothY={smoothY}
+              />
+            ))}
         </AnimatePresence>
       </div>
 

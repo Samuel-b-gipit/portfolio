@@ -7,7 +7,7 @@
  */
 
 import { streamText } from "ai";
-import { google } from "@ai-sdk/google";
+import { groq } from "@ai-sdk/groq";
 import { NextRequest } from "next/server";
 import { generateQueryEmbedding } from "@/lib/embeddings/generator";
 import { searchSimilarChunks } from "@/lib/embeddings/vector-store";
@@ -26,16 +26,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check API key
-    const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    // Check API keys
+    const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      return new Response(
-        JSON.stringify({
-          error: "Google API key not configured",
-          message:
-            "Please set GOOGLE_GENERATIVE_AI_API_KEY in your environment variables",
-        }),
-        { status: 500, headers: { "Content-Type": "application/json" } },
+      throw new Error(
+        "Groq API key not configured. Please set GROQ_API_KEY in your environment variables.",
+      );
+    }
+
+    const googleApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+    if (!googleApiKey) {
+      throw new Error(
+        "Google API key not configured. Please set GOOGLE_GENERATIVE_AI_API_KEY in your environment variables.",
       );
     }
 
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
     console.log("Generating query embedding...");
     const queryEmbedding = await generateQueryEmbedding(
       lastUserMessage.content,
-      apiKey,
+      googleApiKey,
     );
 
     // Search for relevant chunks
@@ -79,7 +81,7 @@ export async function POST(req: NextRequest) {
       .join("\n\n---\n\n");
 
     // Build system message with RAG context
-    const systemMessage = `You are a helpful AI assistant for Samuel Gipit Jr.'s portfolio website. Your role is to answer questions about Samuel's projects, experience, skills, and professional background.
+    const systemMessage = `You are a helpful AI assistant for Samuel Gipit portfolio website. Your role is to answer questions about Samuel's projects, experience, skills, and professional background.
 
 IMPORTANT INSTRUCTIONS:
 - ONLY answer questions that can be answered using the context provided below
@@ -90,7 +92,7 @@ IMPORTANT INSTRUCTIONS:
 - When mentioning specific projects or experiences, use the exact names and details from the context
 
 CONTEXT:
-${context || "No relevant context found. Please only answer questions about Samuel Gipit Jr.'s portfolio based on information you have access to."}
+${context || "No relevant context found. Please only answer questions about Samuel Gipi portfolio based on information you have access to."}
 
 Remember: You can ONLY answer questions about Samuel's professional work, projects, and experience. For anything else, politely decline.`;
 
@@ -105,20 +107,61 @@ Remember: You can ONLY answer questions about Samuel's professional work, projec
 
     // Create streaming response using AI SDK
     const result = await streamText({
-      model: google("gemini-2.0-flash"),
+      model: groq("llama-3.3-70b-versatile"),
       messages: aiMessages,
       temperature: 0.7,
     });
 
-    return result.toTextStreamResponse();
+    const encoder = new TextEncoder();
+    const chunks: Uint8Array[] = [];
+    for await (const chunk of result.textStream) {
+      chunks.push(encoder.encode(chunk));
+    }
+
+    return new Response(
+      new ReadableStream({
+        start(controller) {
+          for (const chunk of chunks) controller.enqueue(chunk);
+          controller.close();
+        },
+      }),
+      {
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      },
+    );
   } catch (error) {
     console.error("Error in chat API:", error);
-    return new Response(
-      JSON.stringify({
-        error: "Failed to process chat request",
-        message: error instanceof Error ? error.message : "Unknown error",
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } },
-    );
+
+    const errorMessage = checkIsRateLimit(error)
+      ? "I'm temporarily unavailable right now due to API rate limits on the free tier. Please try again in a few moments!"
+      : "Sorry, something went wrong while processing your request. Please try again.";
+
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(errorMessage));
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      status: 200,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
   }
+}
+
+function checkIsRateLimit(error: unknown): boolean {
+  const errObj = error as any;
+  return (
+    errObj?.statusCode === 429 ||
+    errObj?.code === 429 ||
+    errObj?.status === 429 ||
+    (error instanceof Error &&
+      (error.message.includes("429") ||
+        error.message.includes("quota") ||
+        error.message.includes("rate limit") ||
+        error.message.includes("Rate limit")))
+  );
 }

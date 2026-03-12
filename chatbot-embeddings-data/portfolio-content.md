@@ -1,4 +1,4 @@
-# Samuel Gipit Jr.
+# Samuel Gipit
 
 Software Engineer (Mid-Level)
 

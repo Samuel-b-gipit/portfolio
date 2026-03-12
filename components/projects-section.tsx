@@ -9,6 +9,7 @@ interface Project {
   description: string;
   image: string;
   technologies: string[];
+  url: string;
   links: {
     github?: string;
     demo?: string;
@@ -28,9 +29,9 @@ const PROJECTS: Project[] = [
       "PostgreSQL",
       "OpenAI API",
     ],
+    url: process.env.NEXT_PUBLIC_PROJECT_WORKFLOW_BUILDER_URL ?? "#",
     links: {
-      github: "https://github.com",
-      demo: "https://demo.example.com",
+      github: process.env.NEXT_PUBLIC_PROJECT_WORKFLOW_BUILDER_URL,
     },
   },
   {
@@ -45,9 +46,9 @@ const PROJECTS: Project[] = [
       "Stripe",
       "Tailwind CSS",
     ],
+    url: process.env.NEXT_PUBLIC_PROJECT_SAAS_STARTER_URL ?? "#",
     links: {
-      github: "https://github.com",
-      demo: "https://demo.example.com",
+      github: process.env.NEXT_PUBLIC_PROJECT_SAAS_STARTER_URL,
     },
   },
   {
@@ -56,9 +57,9 @@ const PROJECTS: Project[] = [
       "Standalone contract lifecycle management with version tracking, atomic uniqueness enforcement, and concurrency safeguards.",
     image: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
     technologies: ["Node.js", "PostgreSQL", "Prisma", "Express"],
+    url: process.env.NEXT_PUBLIC_PROJECT_CONTRACT_VERSIONING_URL ?? "#",
     links: {
-      github: "https://github.com",
-      demo: "https://demo.example.com",
+      github: process.env.NEXT_PUBLIC_PROJECT_CONTRACT_VERSIONING_URL,
     },
   },
   {
@@ -67,9 +68,9 @@ const PROJECTS: Project[] = [
       "Employer-focused recruitment platform where employers browse applicant profiles and send proposals directly.",
     image: "/reverse-hiring.png",
     technologies: ["Next.js", "Node.js", "PostgreSQL", "Tailwind CSS"],
+    url: process.env.NEXT_PUBLIC_PROJECT_REVERSE_HIRING_URL ?? "#",
     links: {
-      github: "https://github.com",
-      demo: "https://demo.example.com",
+      github: process.env.NEXT_PUBLIC_PROJECT_REVERSE_HIRING_URL,
     },
   },
 ];
@@ -120,10 +121,13 @@ export default function ProjectsSection() {
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {PROJECTS.map((project) => (
-              <motion.div
+              <motion.a
                 key={project.title}
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 variants={itemVariants}
-                className="group overflow-hidden rounded-xl border border-border bg-card/50 backdrop-blur-sm flex flex-col transition-all hover:border-accent/50 hover:shadow-lg hover:shadow-primary/5"
+                className="group overflow-hidden rounded-xl border border-border bg-card/50 backdrop-blur-sm flex flex-col transition-all hover:border-accent/50 hover:shadow-lg hover:shadow-primary/5 cursor-pointer"
               >
                 {/* Top: Image panel */}
                 <div className="relative h-48 overflow-hidden shrink-0">
@@ -156,28 +160,38 @@ export default function ProjectsSection() {
                   <div className="flex flex-wrap items-center justify-between gap-3 mt-auto">
                     <div className="flex gap-4 shrink-0">
                       {project.links.github && (
-                        <motion.a
-                          href={project.links.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <motion.button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.open(
+                              project.links.github,
+                              "_blank",
+                              "noopener,noreferrer",
+                            );
+                          }}
                           className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
                           whileHover={{ x: 5 }}
                         >
                           <Github className="h-5 w-5" />
                           <span>Code</span>
-                        </motion.a>
+                        </motion.button>
                       )}
                       {project.links.demo && (
-                        <motion.a
-                          href={project.links.demo}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <motion.button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            window.open(
+                              project.links.demo,
+                              "_blank",
+                              "noopener,noreferrer",
+                            );
+                          }}
                           className="inline-flex items-center gap-2 text-accent hover:text-accent/80 transition-colors"
                           whileHover={{ x: 5 }}
                         >
                           <ExternalLink className="h-5 w-5" />
                           <span>Demo</span>
-                        </motion.a>
+                        </motion.button>
                       )}
                     </div>
 
@@ -193,7 +207,7 @@ export default function ProjectsSection() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </motion.a>
             ))}
           </div>
         </motion.div>
