@@ -30,7 +30,7 @@ const EXPERIENCES: Experience[] = [
     description:
       "Central payroll engine connecting all HRIS modules to generate accurate compensation reports.",
     highlights: [
-      "Designed payroll calculation engine integrating position, salary grade, attendance, and benefit data",
+      "Contributed to payroll calculation engine integrating position, salary grade, attendance, and benefit data",
       "Implemented validation rules to detect and prevent payroll discrepancies",
       "Integrated mandatory deductions and benefit computations across all employee types",
       "Built secure access layers for salary data visibility with audit-ready report generation",

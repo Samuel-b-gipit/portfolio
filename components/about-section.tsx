@@ -3,13 +3,30 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
-import { Download, Heart, Zap, Shield, Users } from "lucide-react";
+import { GraduationCap, Heart, Zap, Shield, Users } from "lucide-react";
 import {
   staggerContainer,
   fadeInUp,
   sectionHeader,
   cardVariants,
 } from "@/lib/animation-variants";
+
+interface Education {
+  degree: string;
+  school: string;
+  period: string;
+  description: string;
+}
+
+const EDUCATION: Education[] = [
+  {
+    degree: "Bachelor of Science in Information Technology",
+    school: "University",
+    period: "2020 – 2024",
+    description:
+      "Focused on software engineering, database systems, and web application development.",
+  },
+];
 
 const VALUES = [
   {
@@ -107,33 +124,49 @@ export default function AboutSection() {
           {/* Bio + Values */}
           <div className="grid gap-12 lg:grid-cols-2 items-start">
             {/* Bio */}
-            <motion.div variants={fadeInUp} className="space-y-5">
+            <motion.div
+              variants={fadeInUp}
+              className="space-y-5 flex flex-col h-full"
+            >
               <p className="text-base leading-relaxed text-foreground/75">
-                I&apos;m a mid-level Software Engineer specializing in
-                enterprise HR systems and full-stack web applications. I focus
-                on building robust, maintainable systems with strong data
-                integrity, well-structured workflow architecture, and reliable
-                performance.
+                I’m a mid-level Software Engineer focused on building full-stack
+                web applications and designing reliable backend systems. I
+                emphasize maintainable architecture, structured workflows, and
+                strong data integrity to create scalable and dependable
+                software.
               </p>
-              <p className="text-base leading-relaxed text-foreground/75">
-                Currently engineering large-scale government HRIS platforms
-                serving 17,000+ active users, covering multi-step hiring
-                approval workflows, payroll calculation engines, and full
-                contract lifecycle management — from draft through approval to
-                archive.
-              </p>
-
-              {/* Resume download */}
-              <motion.a
-                href="/resume.pdf"
-                download
-                className="inline-flex items-center gap-2.5 rounded-xl border border-primary/30 bg-primary/5 px-5 py-3 text-sm font-semibold text-primary transition-all hover:bg-primary/10 hover:border-primary/50"
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.97 }}
+              {/* Education card */}
+              <motion.div
+                variants={cardVariants}
+                className="rounded-2xl border border-border/30 bg-card/40 backdrop-blur-sm p-6 transition-all hover:border-accent/30 hover:bg-card/60 flex flex-col flex-1"
               >
-                <Download className="h-4 w-4" />
-                Download Resume
-              </motion.a>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="flex items-center justify-center h-9 w-9 rounded-xl bg-primary/10 text-primary">
+                    <GraduationCap className="h-4 w-4" />
+                  </div>
+                  <h3 className="text-sm font-bold text-foreground">
+                    Education
+                  </h3>
+                </div>
+                {EDUCATION.map((edu) => (
+                  <div key={edu.degree}>
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h4 className="font-semibold text-foreground leading-snug text-sm">
+                        {edu.degree}
+                      </h4>
+                      <span className="text-xs font-medium text-accent whitespace-nowrap px-2.5 py-1 rounded-full bg-accent/10">
+                        {edu.period}
+                      </span>
+                    </div>
+                    <p className="text-sm text-foreground/50 mb-2">
+                      {edu.school}
+                    </p>
+                    <p className="text-sm text-foreground/65 leading-relaxed">
+                      {edu.description}
+                    </p>
+                  </div>
+                ))}
+              </motion.div>
             </motion.div>
 
             {/* Values */}

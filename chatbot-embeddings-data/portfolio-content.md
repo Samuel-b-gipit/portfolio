@@ -117,7 +117,7 @@ Role: Software Engineer
 
 Central payroll engine connecting all HRIS modules to generate accurate compensation reports.
 
-- Designed payroll calculation engine using position, salary grade, attendance, and benefit data
+- Contributed to payroll calculation engine using position, salary grade, attendance, and benefit data
 - Implemented validation rules to prevent payroll discrepancies
 - Integrated mandatory deductions and benefit computations
 - Built secure access layers for salary data visibility

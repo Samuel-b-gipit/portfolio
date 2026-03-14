@@ -5,7 +5,7 @@ import { Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown, Download } from "lucide-react";
 import ParticleScene from "./3d/particle-scene";
-import TechConstellation from "@/components/tech-constellation";
+import FullStackArchitecture from "@/components/fullstack-architecture";
 import { staggerContainer, fadeInUp } from "@/lib/animation-variants";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -43,7 +43,7 @@ GitHub  : github.com`,
 
 type TerminalLine = { type: "input" | "output"; text: string };
 
-function InteractiveTerminal() {
+function InteractiveTerminal({ boot }: { boot?: boolean }) {
   const [lines, setLines] = useState<TerminalLine[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [cmdHistory, setCmdHistory] = useState<string[]>([]);
@@ -52,9 +52,11 @@ function InteractiveTerminal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  // Accept boot prop
   useEffect(() => {
+    if (!boot) return;
     const bootMsg =
-      "Welcome to Samuel's portfolio. Type 'help' to get started.";
+      "Welcome to Samuel's portfolio. Type 'help' to get started or use the chat bot.";
     let i = 0;
     const id = setInterval(() => {
       i++;
@@ -65,7 +67,7 @@ function InteractiveTerminal() {
       }
     }, 18);
     return () => clearInterval(id);
-  }, []);
+  }, [boot]);
 
   useEffect(() => {
     if (scrollContainerRef.current) {
@@ -191,13 +193,213 @@ function InteractiveTerminal() {
   );
 }
 
-// ─── Hero Section ──────────────────────────────────────────────────────────────
+// ─── Typewriter Heading ────────────────────────────────────────────────────────
 
-interface HeroSectionProps {
-  onProfileClick?: () => void;
+const TW_NAME = "Samuel Gipit";
+const TW_TITLE = "Software Engineer";
+const TW_HEADING1 = "Building Systems";
+const TW_HEADING2 = "That Scale";
+
+const TYPE_SPEED = 37;
+const DEL_SPEED = 22;
+const PAUSE_MS = 900;
+const START_DELAY = 850;
+
+type AnimPhase =
+  | "idle"
+  | "typing-name"
+  | "typing-title"
+  | "pause"
+  | "deleting-title"
+  | "deleting-name"
+  | "typing-heading1"
+  | "typing-heading2"
+  | "done";
+
+function TypewriterHeading({ onDone }: { onDone?: () => void }) {
+  const [phase, setPhase] = useState<AnimPhase>("idle");
+  const [line1, setLine1] = useState("");
+  const [line2, setLine2] = useState("");
+  const [cursorOn, setCursorOn] = useState(true);
+
+  // Accept onDone prop
+  // Kick off after initial fade-in
+  useEffect(() => {
+    const id = setTimeout(() => setPhase("typing-name"), START_DELAY);
+    return () => clearTimeout(id);
+  }, []);
+
+  // Blink cursor only during reading pause
+  useEffect(() => {
+    if (phase === "pause") {
+      const id = setInterval(() => setCursorOn((v) => !v), 530);
+      return () => clearInterval(id);
+    }
+    setCursorOn(true);
+  }, [phase]);
+
+  // State machine
+  useEffect(() => {
+    if (phase === "idle" || phase === "done") return;
+    let id: ReturnType<typeof setTimeout>;
+
+    switch (phase) {
+      case "typing-name": {
+        if (line1.length < TW_NAME.length) {
+          id = setTimeout(
+            () => setLine1(TW_NAME.slice(0, line1.length + 1)),
+            TYPE_SPEED,
+          );
+        } else {
+          id = setTimeout(() => setPhase("typing-title"), 150);
+        }
+        break;
+      }
+      case "typing-title": {
+        if (line2.length < TW_TITLE.length) {
+          id = setTimeout(
+            () => setLine2(TW_TITLE.slice(0, line2.length + 1)),
+            TYPE_SPEED,
+          );
+        } else {
+          setPhase("pause");
+        }
+        break;
+      }
+      case "pause": {
+        id = setTimeout(() => setPhase("deleting-title"), PAUSE_MS);
+        break;
+      }
+      case "deleting-title": {
+        if (line2.length > 0) {
+          id = setTimeout(() => setLine2((s) => s.slice(0, -1)), DEL_SPEED);
+        } else {
+          id = setTimeout(() => setPhase("deleting-name"), 100);
+        }
+        break;
+      }
+      case "deleting-name": {
+        if (line1.length > 0) {
+          id = setTimeout(() => setLine1((s) => s.slice(0, -1)), DEL_SPEED);
+        } else {
+          id = setTimeout(() => setPhase("typing-heading1"), 150);
+        }
+        break;
+      }
+      case "typing-heading1": {
+        if (line1.length < TW_HEADING1.length) {
+          id = setTimeout(
+            () => setLine1(TW_HEADING1.slice(0, line1.length + 1)),
+            TYPE_SPEED,
+          );
+        } else {
+          id = setTimeout(() => setPhase("typing-heading2"), 150);
+        }
+        break;
+      }
+      case "typing-heading2": {
+        if (line2.length < TW_HEADING2.length) {
+          id = setTimeout(
+            () => setLine2(TW_HEADING2.slice(0, line2.length + 1)),
+            TYPE_SPEED,
+          );
+        } else {
+          setPhase("done");
+          if (onDone) onDone();
+        }
+        break;
+      }
+      default:
+        break;
+    }
+
+    return () => clearTimeout(id);
+  }, [phase, line1, line2, onDone]);
+
+  const isIntroPhase = [
+    "idle",
+    "typing-name",
+    "typing-title",
+    "pause",
+    "deleting-title",
+    "deleting-name",
+  ].includes(phase);
+  const cursorOnLine2 = [
+    "typing-title",
+    "pause",
+    "deleting-title",
+    "typing-heading2",
+  ].includes(phase);
+  const showCursor = phase !== "idle" && phase !== "done";
+  const isGradientLine2 = ["typing-heading2", "done"].includes(phase);
+
+  const cursor = showCursor ? (
+    cursorOn ? (
+      <span className="text-primary font-thin select-none" aria-hidden="true">
+        |
+      </span>
+    ) : (
+      <span className="invisible select-none" aria-hidden="true">
+        |
+      </span>
+    )
+  ) : null;
+
+  if (isIntroPhase) {
+    return (
+      <h1 className="text-display">
+        <span className="block">
+          {line1}
+          {!cursorOnLine2 && cursor}
+        </span>
+        <span
+          className="block whitespace-nowrap"
+          style={{ fontSize: "clamp(1.9rem, 3.8vw, 3.4rem)" }}
+        >
+          <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
+            {line2 || "\u00A0"}
+          </span>
+          {cursorOnLine2 && cursor}
+        </span>
+      </h1>
+    );
+  }
+
+  return (
+    <h1 className="text-display">
+      <span className="block">
+        {line1}
+        {!cursorOnLine2 && cursor}
+      </span>
+      <span className="block">
+        <span
+          className={
+            isGradientLine2
+              ? "bg-linear-to-r from-primary to-accent bg-clip-text text-transparent"
+              : ""
+          }
+        >
+          {line2 || "\u00A0"}
+        </span>
+        {cursorOnLine2 && cursor}
+      </span>
+    </h1>
+  );
 }
 
-export default function HeroSection({ onProfileClick }: HeroSectionProps) {
+// ─── Hero Section ──────────────────────────────────────────────────────────────
+
+export default function HeroSection() {
+  const [terminalReady, setTerminalReady] = useState(false);
+  const terminalDelayRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clean up timeout if unmounted
+  useEffect(() => {
+    return () => {
+      if (terminalDelayRef.current) clearTimeout(terminalDelayRef.current);
+    };
+  }, []);
+
   return (
     <section
       className="relative h-screen w-full overflow-hidden"
@@ -239,12 +441,21 @@ export default function HeroSection({ onProfileClick }: HeroSectionProps) {
 
             {/* Heading */}
             <motion.div variants={fadeInUp}>
-              <h1 className="text-display text-balance">
-                Building Systems{" "}
-                <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
-                  That Scale
-                </span>
-              </h1>
+              <div
+                style={{
+                  height: "calc(clamp(2.5rem, 5vw, 4.5rem) * 1.05 * 2)",
+                  overflow: "visible",
+                }}
+              >
+                <TypewriterHeading
+                  onDone={() => {
+                    terminalDelayRef.current = setTimeout(
+                      () => setTerminalReady(true),
+                      3500,
+                    );
+                  }}
+                />
+              </div>
               <p className="mt-4 text-lg text-foreground/55 max-w-lg leading-relaxed">
                 Enterprise HR &middot; Full-stack SaaS &middot; Workflow
                 Architecture
@@ -253,7 +464,7 @@ export default function HeroSection({ onProfileClick }: HeroSectionProps) {
 
             {/* Interactive terminal */}
             <motion.div variants={fadeInUp}>
-              <InteractiveTerminal />
+              <InteractiveTerminal boot={terminalReady} />
             </motion.div>
 
             {/* CTA buttons */}
@@ -279,7 +490,8 @@ export default function HeroSection({ onProfileClick }: HeroSectionProps) {
                 Get In Touch
               </motion.a>
               <motion.a
-                href="#"
+                href="/resume.pdf"
+                download
                 className="rounded-xl border border-border/30 bg-card/30 backdrop-blur-sm px-5 py-3 font-medium text-foreground/60 text-center transition-all hover:text-foreground hover:border-border/60 flex items-center justify-center gap-2"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
@@ -290,9 +502,9 @@ export default function HeroSection({ onProfileClick }: HeroSectionProps) {
             </motion.div>
           </motion.div>
 
-          {/* ── RIGHT: Photo + skill constellation ── */}
+          {/* ── RIGHT: Full-stack architecture diagram ── */}
           <div className="order-2 hidden lg:flex justify-center">
-            <TechConstellation onCenterClick={onProfileClick} />
+            <FullStackArchitecture />
           </div>
         </div>
       </div>

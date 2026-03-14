@@ -29,7 +29,7 @@ const TESTIMONIALS: Testimonial[] = [
   },
   {
     quote:
-      "The payroll system Samuel built handles multi-step calculations with precision. His attention to data integrity and audit logging gave us confidence in every computation.",
+      "The payroll system Samuel contributed to handles multi-step calculations with precision. His attention to data integrity and audit logging gave us confidence in every computation.",
     name: "Project Stakeholder",
     title: "HR Systems Manager",
     company: "Local Government Unit",
