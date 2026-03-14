@@ -1,13 +1,21 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useInView } from "react-intersection-observer";
+import { useRef } from "react";
+import { Briefcase } from "lucide-react";
+import {
+  staggerContainer,
+  fadeInUp,
+  sectionHeader,
+} from "@/lib/animation-variants";
 
 interface Experience {
   title: string;
   system: string;
   company: string;
   period: string;
+  current?: boolean;
   description: string;
   highlights: string[];
 }
@@ -18,6 +26,7 @@ const EXPERIENCES: Experience[] = [
     system: "Payroll Information System",
     company: "Local Government Unit",
     period: "2025 – Present",
+    current: true,
     description:
       "Central payroll engine connecting all HRIS modules to generate accurate compensation reports.",
     highlights: [
@@ -73,112 +82,144 @@ const EXPERIENCES: Experience[] = [
   },
 ];
 
+function TimelineCard({
+  experience,
+  index,
+}: {
+  experience: Experience;
+  index: number;
+}) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const { ref, inView } = useInView({ threshold: 0.2, triggerOnce: true });
+
+  return (
+    <div ref={ref} className="relative pl-16 sm:pl-20">
+      {/* Dot */}
+      <motion.div
+        className="absolute left-0 top-3 z-10 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border-2 border-primary/40 bg-card"
+        initial={{ scale: 0, opacity: 0 }}
+        animate={inView ? { scale: 1, opacity: 1 } : {}}
+        transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <Briefcase className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+        {experience.current && (
+          <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-accent">
+            <span className="absolute inset-0 animate-ping rounded-full bg-accent/60" />
+          </span>
+        )}
+      </motion.div>
+
+      {/* Card */}
+      <motion.div
+        ref={cardRef}
+        className="group rounded-2xl border border-border/30 bg-card/40 p-6 backdrop-blur-sm transition-all duration-300 hover:border-primary/30 hover:bg-card/60 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/5"
+        initial={{ opacity: 0, y: 30 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: index * 0.15, duration: 0.5 }}
+      >
+        <div className="mb-3 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+          <div>
+            <h3 className="text-lg font-bold text-foreground leading-snug">
+              {experience.system}
+            </h3>
+            <p className="text-sm text-primary font-medium mt-0.5">
+              {experience.title} · {experience.company}
+            </p>
+          </div>
+          <span
+            className={`inline-flex items-center self-start rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap ${
+              experience.current
+                ? "bg-accent/15 text-accent border border-accent/25"
+                : "bg-primary/10 text-primary/70 border border-primary/15"
+            }`}
+          >
+            {experience.period}
+          </span>
+        </div>
+
+        <p className="mb-4 text-foreground/55 leading-relaxed text-sm">
+          {experience.description}
+        </p>
+
+        <ul className="space-y-2">
+          {experience.highlights.map((highlight, hidx) => (
+            <motion.li
+              key={hidx}
+              className="flex items-start gap-2.5 text-sm text-foreground/70"
+              initial={{ opacity: 0, x: -10 }}
+              animate={inView ? { opacity: 1, x: 0 } : {}}
+              transition={{ delay: index * 0.15 + hidx * 0.05, duration: 0.4 }}
+            >
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-accent/70 shrink-0" />
+              <span>{highlight}</span>
+            </motion.li>
+          ))}
+        </ul>
+      </motion.div>
+    </div>
+  );
+}
+
 export default function ExperienceSection() {
-  const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const { ref, inView } = useInView({ threshold: 0.05, triggerOnce: true });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"],
+  });
 
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.8 },
+  const lineHeight = useSpring(
+    useTransform(scrollYProgress, [0.1, 0.9], ["0%", "100%"]),
+    {
+      stiffness: 100,
+      damping: 30,
     },
-  };
+  );
 
   return (
     <section
       id="experience"
-      className="relative bg-gradient-to-b from-background to-primary/5 py-20 px-4 md:py-32"
+      ref={sectionRef}
+      className="relative bg-background py-24 px-6 md:py-32 md:px-8 lg:px-12"
     >
       <div className="mx-auto max-w-4xl">
         <motion.div
           ref={ref}
           initial="hidden"
           animate={inView ? "visible" : "hidden"}
-          variants={containerVariants}
+          variants={staggerContainer(0.1)}
         >
-          <motion.div className="mb-16 text-center" variants={itemVariants}>
-            <h2 className="mb-4 text-4xl font-bold text-balance md:text-5xl">
-              Experience
-            </h2>
-            <p className="mx-auto max-w-2xl text-lg text-foreground/70">
+          {/* Header */}
+          <motion.div className="mb-12 text-center" variants={sectionHeader}>
+            <p className="text-sm font-medium text-accent uppercase tracking-widest mb-3">
+              Career
+            </p>
+            <h2 className="text-h2 text-balance mb-4">Experience</h2>
+            <p className="mx-auto max-w-2xl text-foreground/55 leading-relaxed">
               Enterprise systems built for the Local Government Unit, serving
               thousands of employees across HR, payroll, and contract workflows.
             </p>
           </motion.div>
 
           <div className="relative space-y-8">
-            {/* Timeline Line */}
-            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary to-accent" />
+            {/* Animated timeline line */}
+            <div className="absolute left-4.5 sm:left-5.5 top-0 bottom-0 w-px bg-border/30" />
+            <motion.div
+              className="absolute left-4.5 sm:left-5.5 top-0 w-px origin-top"
+              style={{
+                height: lineHeight,
+                background:
+                  "linear-gradient(to bottom, var(--color-primary), var(--color-accent))",
+              }}
+            />
 
             {EXPERIENCES.map((experience, idx) => (
-              <motion.div
+              <TimelineCard
                 key={experience.system}
-                variants={itemVariants}
-                className="relative pl-20"
-              >
-                {/* Timeline Dot */}
-                <motion.div
-                  className="absolute left-0 top-2 h-12 w-12 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center"
-                  initial={{ scale: 0 }}
-                  animate={inView ? { scale: 1 } : { scale: 0 }}
-                  transition={{ delay: idx * 0.2, duration: 0.5 }}
-                >
-                  <div className="h-4 w-4 rounded-full bg-background" />
-                </motion.div>
-
-                {/* Content Card */}
-                <div className="rounded-lg border border-border bg-card/50 p-6 backdrop-blur-sm transition-all hover:border-accent/50 hover:bg-card/80">
-                  <div className="mb-2 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
-                    <div>
-                      <h3 className="text-xl font-bold text-foreground leading-snug">
-                        {experience.system}
-                      </h3>
-                      <p className="text-sm text-primary font-medium mt-0.5">
-                        {experience.title} · {experience.company}
-                      </p>
-                    </div>
-                    <span className="text-sm font-medium text-accent whitespace-nowrap">
-                      {experience.period}
-                    </span>
-                  </div>
-
-                  <p className="mb-4 text-foreground/70 leading-relaxed">
-                    {experience.description}
-                  </p>
-
-                  {/* Highlights */}
-                  <ul className="space-y-2">
-                    {experience.highlights.map((highlight, hidx) => (
-                      <motion.li
-                        key={hidx}
-                        className="flex items-start gap-3 text-foreground/80"
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={
-                          inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -10 }
-                        }
-                        transition={{
-                          delay: idx * 0.2 + hidx * 0.1,
-                          duration: 0.5,
-                        }}
-                      >
-                        <span className="mt-1.5 h-2 w-2 rounded-full bg-accent flex-shrink-0" />
-                        <span>{highlight}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                </div>
-              </motion.div>
+                experience={experience}
+                index={idx}
+              />
             ))}
           </div>
         </motion.div>

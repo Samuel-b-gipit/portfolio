@@ -1,15 +1,8 @@
 "use client";
 
-/**
- * Chat input component
- * Textarea with auto-resize and send button
- */
-
 import { useState, useRef, useEffect, FormEvent } from "react";
 import { Send } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Spinner } from "@/components/ui/spinner";
+import { motion } from "framer-motion";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -22,12 +15,11 @@ export function ChatInput({
   onSend,
   disabled = false,
   isLoading = false,
-  placeholder = "Ask me about Samuel's projects or experience...",
+  placeholder = "Ask about Samuel's projects or experience...",
 }: ChatInputProps) {
   const [input, setInput] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
@@ -37,56 +29,53 @@ export function ChatInput({
 
   const handleSubmit = (e?: FormEvent) => {
     e?.preventDefault();
-
-    if (!input.trim() || disabled || isLoading) {
-      return;
-    }
-
+    if (!input.trim() || disabled || isLoading) return;
     onSend(input.trim());
     setInput("");
-
-    // Reset textarea height
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Submit on Enter (without Shift)
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();
     }
   };
 
+  const canSend = input.trim().length > 0 && !disabled && !isLoading;
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex gap-2 items-end p-4 border-t bg-background"
+      className="flex items-end gap-2 border-t border-border/30 bg-background/50 p-3 backdrop-blur-sm"
     >
-      <Textarea
+      <textarea
         ref={textareaRef}
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         disabled={disabled || isLoading}
-        className="min-h-11 max-h-25 resize-none"
         rows={1}
+        className="flex-1 resize-none rounded-xl border border-border/30 bg-card/40 px-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/30 backdrop-blur-sm focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all min-h-10 max-h-25"
       />
 
-      <Button
+      <motion.button
         type="submit"
-        size="icon"
-        disabled={!input.trim() || disabled || isLoading}
-        className="shrink-0 h-11 w-11"
+        disabled={!canSend}
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-primary-foreground transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        style={{
+          background: canSend ? "var(--gradient-cta)" : "var(--color-muted)",
+        }}
+        whileHover={canSend ? { scale: 1.05 } : {}}
+        whileTap={canSend ? { scale: 0.95 } : {}}
       >
         {isLoading ? (
-          <Spinner className="h-5 w-5" />
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
         ) : (
-          <Send className="h-5 w-5" />
+          <Send className="h-4 w-4" />
         )}
-      </Button>
+      </motion.button>
     </form>
   );
 }

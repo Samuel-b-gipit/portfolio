@@ -3,8 +3,10 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
+import { ArrowDown, Download } from "lucide-react";
 import ParticleScene from "./3d/particle-scene";
 import TechConstellation from "@/components/tech-constellation";
+import { staggerContainer, fadeInUp } from "@/lib/animation-variants";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -50,7 +52,6 @@ function InteractiveTerminal() {
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Boot typewriter animation
   useEffect(() => {
     const bootMsg =
       "Welcome to Samuel's portfolio. Type 'help' to get started.";
@@ -62,11 +63,10 @@ function InteractiveTerminal() {
         clearInterval(id);
         setBooting(false);
       }
-    }, 22);
+    }, 18);
     return () => clearInterval(id);
   }, []);
 
-  // Auto-scroll within terminal only — no page scroll
   useEffect(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop =
@@ -132,23 +132,23 @@ function InteractiveTerminal() {
   };
 
   return (
-    <div className="rounded-xl border border-border bg-card/80 backdrop-blur-sm overflow-hidden font-mono text-sm shadow-xl shadow-primary/5">
-      {/* macOS title bar */}
-      <div className="relative flex items-center px-4 py-2.5 border-b border-border bg-muted/40">
-        <div className="flex gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-          <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-          <div className="w-3 h-3 rounded-full bg-[#28c840]" />
+    <div className="rounded-2xl border border-border/50 bg-card/60 backdrop-blur-md overflow-hidden font-mono text-sm shadow-2xl shadow-primary/5">
+      {/* Title bar */}
+      <div className="relative flex items-center px-4 py-2.5 border-b border-border/30 bg-card/80">
+        <div className="flex gap-2">
+          <div className="w-3 h-3 rounded-full bg-[#ff5f57] shadow-[0_0_6px_#ff5f5740]" />
+          <div className="w-3 h-3 rounded-full bg-[#febc2e] shadow-[0_0_6px_#febc2e40]" />
+          <div className="w-3 h-3 rounded-full bg-[#28c840] shadow-[0_0_6px_#28c84040]" />
         </div>
-        <span className="absolute left-1/2 -translate-x-1/2 text-muted-foreground text-xs pointer-events-none">
+        <span className="absolute left-1/2 -translate-x-1/2 text-muted-foreground/60 text-xs pointer-events-none tracking-wide">
           samuel@portfolio: ~
         </span>
       </div>
 
-      {/* Terminal output area */}
+      {/* Terminal output */}
       <div
         ref={scrollContainerRef}
-        className="h-60 overflow-y-auto p-4 space-y-0.5 cursor-text select-text"
+        className="h-56 overflow-y-auto p-4 space-y-0.5 cursor-text select-text"
         onClick={() => inputRef.current?.focus()}
       >
         {lines.map((line, i) => (
@@ -157,24 +157,22 @@ function InteractiveTerminal() {
             className={`leading-relaxed whitespace-pre-wrap wrap-break-word ${
               line.type === "input"
                 ? "text-accent font-medium"
-                : "text-foreground/75"
+                : "text-foreground/70"
             }`}
           >
             {line.text || "\u00A0"}
           </div>
         ))}
 
-        {/* Live input line with blinking cursor */}
         {!booting && (
-          <div className="flex items-center text-primary leading-relaxed">
-            <span className="mr-1.5 text-primary/60">$</span>
+          <div className="flex items-center text-accent leading-relaxed">
+            <span className="mr-1.5 text-accent/50">$</span>
             <span>{inputValue}</span>
-            <span className="inline-block w-1.5 h-[1em] bg-primary ml-0.5 animate-pulse" />
+            <span className="inline-block w-1.5 h-[1em] bg-accent ml-0.5 animate-pulse rounded-sm" />
           </div>
         )}
       </div>
 
-      {/* Visually hidden real input for keyboard capture */}
       <input
         ref={inputRef}
         value={inputValue}
@@ -201,7 +199,10 @@ interface HeroSectionProps {
 
 export default function HeroSection({ onProfileClick }: HeroSectionProps) {
   return (
-    <section className="relative h-screen w-full overflow-hidden bg-linear-to-br from-background via-background to-primary/10">
+    <section
+      className="relative h-screen w-full overflow-hidden"
+      style={{ background: "var(--gradient-hero)" }}
+    >
       {/* 3D particle background */}
       <div className="absolute inset-0 -z-10">
         <Canvas className="h-full w-full">
@@ -211,87 +212,107 @@ export default function HeroSection({ onProfileClick }: HeroSectionProps) {
         </Canvas>
       </div>
 
-      {/* Two-column content */}
-      <div className="flex h-full items-center justify-center px-6 py-20 lg:px-12">
-        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-20 items-center">
-          {/* ── LEFT: Photo + skill constellation ── */}
-          <div className="order-2 lg:order-1 flex justify-center">
-            <TechConstellation onCenterClick={onProfileClick} />
-          </div>
+      {/* Gradient overlays for depth */}
+      <div className="absolute inset-0 -z-5 bg-linear-to-t from-background/80 via-transparent to-transparent" />
+      <div className="absolute inset-0 -z-5 bg-linear-to-r from-background/30 via-transparent to-transparent" />
 
-          {/* ── RIGHT: Heading + terminal + CTAs ── */}
+      {/* Two-column content — Left: content, Right: constellation */}
+      <div className="flex h-full items-center justify-center px-6 py-20 lg:px-12">
+        <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10 lg:gap-16 items-center">
+          {/* ── LEFT: Heading + terminal + CTAs ── */}
           <motion.div
-            className="order-1 lg:order-2 flex flex-col gap-5"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            className="order-1 flex flex-col gap-5"
+            variants={staggerContainer(0.12, 0.2)}
+            initial="hidden"
+            animate="visible"
           >
             {/* Badge */}
-            <div className="inline-flex">
-              <span className="inline-flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-4 py-1.5 text-sm font-medium text-accent">
-                <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
+            <motion.div className="inline-flex" variants={fadeInUp}>
+              <span className="inline-flex items-center gap-2.5 rounded-full border border-accent/30 bg-accent/8 px-4 py-1.5 text-sm font-medium text-accent backdrop-blur-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
+                </span>
                 Mid-Level Software Engineer
               </span>
-            </div>
+            </motion.div>
 
             {/* Heading */}
-            <div>
-              <h1 className="text-4xl font-bold leading-tight text-balance md:text-5xl">
+            <motion.div variants={fadeInUp}>
+              <h1 className="text-display text-balance">
                 Building Systems{" "}
                 <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                   That Scale
                 </span>
               </h1>
-              <p className="mt-3 text-foreground/60 text-base">
-                Enterprise HR · Full-stack SaaS · Workflow Architecture
+              <p className="mt-4 text-lg text-foreground/55 max-w-lg leading-relaxed">
+                Enterprise HR &middot; Full-stack SaaS &middot; Workflow
+                Architecture
               </p>
-            </div>
+            </motion.div>
 
             {/* Interactive terminal */}
-            <InteractiveTerminal />
+            <motion.div variants={fadeInUp}>
+              <InteractiveTerminal />
+            </motion.div>
 
             {/* CTA buttons */}
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <motion.div
+              className="flex flex-col gap-3 sm:flex-row"
+              variants={fadeInUp}
+            >
               <motion.a
                 href="#projects"
-                className="rounded-lg bg-primary px-7 py-3 font-medium text-primary-foreground text-center transition-all hover:shadow-lg hover:shadow-primary/40"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
+                className="rounded-xl px-7 py-3 font-medium text-primary-foreground text-center transition-all"
+                style={{ background: "var(--gradient-cta)" }}
+                whileHover={{ scale: 1.03, boxShadow: "var(--glow-primary)" }}
+                whileTap={{ scale: 0.97 }}
               >
                 View My Work
               </motion.a>
               <motion.a
                 href="#contact"
-                className="rounded-lg border border-accent px-7 py-3 font-medium text-accent text-center transition-all hover:bg-accent/10"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
+                className="rounded-xl border border-accent/30 bg-accent/5 backdrop-blur-sm px-7 py-3 font-medium text-accent text-center transition-all hover:bg-accent/10 hover:border-accent/50"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
               >
                 Get In Touch
               </motion.a>
-            </div>
+              <motion.a
+                href="#"
+                className="rounded-xl border border-border/30 bg-card/30 backdrop-blur-sm px-5 py-3 font-medium text-foreground/60 text-center transition-all hover:text-foreground hover:border-border/60 flex items-center justify-center gap-2"
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Download className="h-4 w-4" />
+                Resume
+              </motion.a>
+            </motion.div>
           </motion.div>
+
+          {/* ── RIGHT: Photo + skill constellation ── */}
+          <div className="order-2 hidden lg:flex justify-center">
+            <TechConstellation onCenterClick={onProfileClick} />
+          </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5 }}
       >
-        <svg
-          className="h-6 w-6 text-accent"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <span className="text-xs text-foreground/30 tracking-widest uppercase">
+          Scroll
+        </span>
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 14l-7 7m0 0l-7-7m7 7V3"
-          />
-        </svg>
+          <ArrowDown className="h-4 w-4 text-foreground/30" />
+        </motion.div>
       </motion.div>
     </section>
   );

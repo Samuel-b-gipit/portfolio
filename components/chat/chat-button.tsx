@@ -1,13 +1,7 @@
 "use client";
 
-/**
- * Floating chat button component
- * Fixed position button in bottom-right corner
- */
-
 import { MessageCircle, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "@/components/ui/button";
 
 interface ChatButtonProps {
   isOpen: boolean;
@@ -25,17 +19,23 @@ export function ChatButton({
       className="fixed bottom-6 right-6 z-50"
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      transition={{
-        type: "spring",
-        stiffness: 260,
-        damping: 20,
-      }}
+      transition={{ type: "spring", stiffness: 260, damping: 20 }}
     >
-      <Button
+      {/* Pulse ring */}
+      {!isOpen && (
+        <motion.div
+          className="absolute inset-0 rounded-full"
+          style={{ background: "var(--gradient-cta)" }}
+          animate={{ scale: [1, 1.4, 1.4], opacity: [0.4, 0, 0] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut" }}
+        />
+      )}
+
+      <button
         onClick={onClick}
-        size="lg"
-        className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow relative"
         aria-label={isOpen ? "Close chat" : "Open chat"}
+        className="relative flex h-14 w-14 items-center justify-center rounded-full text-primary-foreground shadow-lg shadow-primary/25 transition-shadow hover:shadow-xl hover:shadow-primary/35"
+        style={{ background: "var(--gradient-cta)" }}
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
@@ -46,7 +46,7 @@ export function ChatButton({
               exit={{ rotate: 90, opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <X className="h-6 w-6" />
+              <X className="h-5 w-5" />
             </motion.div>
           ) : (
             <motion.div
@@ -56,15 +56,14 @@ export function ChatButton({
               exit={{ rotate: -90, opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <MessageCircle className="h-6 w-6" />
+              <MessageCircle className="h-5 w-5" />
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Unread indicator badge */}
         {!isOpen && unreadCount > 0 && (
           <motion.div
-            className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-destructive-foreground text-xs flex items-center justify-center font-semibold"
+            className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground text-xs font-semibold"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 500, damping: 15 }}
@@ -72,7 +71,7 @@ export function ChatButton({
             {unreadCount > 9 ? "9+" : unreadCount}
           </motion.div>
         )}
-      </Button>
+      </button>
     </motion.div>
   );
 }

@@ -2,130 +2,126 @@
 
 import { motion } from "framer-motion";
 import { Github, Linkedin, Twitter, Mail } from "lucide-react";
+import { staggerContainer, fadeInUp } from "@/lib/animation-variants";
+
+const NAV_LINKS = [
+  { name: "Home", href: "/" },
+  { name: "Skills", href: "#skills" },
+  { name: "Projects", href: "#projects" },
+  { name: "Experience", href: "#experience" },
+  { name: "About", href: "#about" },
+  { name: "Contact", href: "#contact" },
+];
+
+const SOCIALS = [
+  { icon: Github, href: "https://github.com", label: "GitHub" },
+  { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
+  { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+  { icon: Mail, href: "mailto:samuelgipit@gmail.com", label: "Email" },
+];
+
+const TECH_BADGES = [
+  "Next.js",
+  "React",
+  "TypeScript",
+  "Tailwind CSS",
+  "Framer Motion",
+  "Three.js",
+];
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 10 },
-    visible: {
-      opacity: 1,
-      y: 0,
-    },
-  };
-
   return (
-    <footer className="relative border-t border-border bg-background/50 backdrop-blur-sm">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+    <footer className="relative bg-background border-t border-transparent">
+      {/* Gradient divider */}
+      <div className="h-px bg-linear-to-r from-transparent via-primary/40 to-transparent" />
+
+      <div className="mx-auto max-w-7xl px-6 md:px-8 lg:px-12 pt-16 pb-8">
         <motion.div
-          className="grid gap-8 md:grid-cols-3 items-center"
-          variants={containerVariants}
+          className="grid gap-12 md:grid-cols-2 lg:grid-cols-4"
+          variants={staggerContainer(0.1)}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={{ once: true, margin: "-50px" }}
         >
           {/* Brand */}
-          <motion.div
-            variants={itemVariants}
-            className="text-center md:text-left"
-          >
-            <h3 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+          <motion.div variants={fadeInUp} className="lg:col-span-1">
+            <h3 className="text-2xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent mb-3 tracking-tight">
               Samuel Gipit
             </h3>
-            <p className="text-foreground/60 text-sm">Software Engineer</p>
+            <p className="text-sm text-foreground/50 leading-relaxed max-w-60">
+              Software Engineer specializing in enterprise systems, scalable
+              full-stack applications, and workflow architecture.
+            </p>
           </motion.div>
 
-          {/* Links */}
-          <motion.div
-            variants={itemVariants}
-            className="flex justify-center gap-4"
-          >
-            <motion.a
-              href="/"
-              className="text-foreground/60 hover:text-accent transition-colors text-sm font-medium"
-              whileHover={{ y: -2 }}
-            >
-              Home
-            </motion.a>
-            <motion.a
-              href="#projects"
-              className="text-foreground/60 hover:text-accent transition-colors text-sm font-medium"
-              whileHover={{ y: -2 }}
-            >
-              Projects
-            </motion.a>
-            <motion.a
-              href="#about"
-              className="text-foreground/60 hover:text-accent transition-colors text-sm font-medium"
-              whileHover={{ y: -2 }}
-            >
-              About
-            </motion.a>
-            <motion.a
-              href="#contact"
-              className="text-foreground/60 hover:text-accent transition-colors text-sm font-medium"
-              whileHover={{ y: -2 }}
-            >
-              Contact
-            </motion.a>
+          {/* Navigation */}
+          <motion.div variants={fadeInUp}>
+            <h4 className="text-sm font-semibold text-foreground/80 mb-4 uppercase tracking-wider">
+              Navigation
+            </h4>
+            <ul className="space-y-2.5">
+              {NAV_LINKS.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    className="text-sm text-foreground/50 hover:text-accent transition-colors duration-200"
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </motion.div>
 
-          {/* Social Links */}
-          <motion.div
-            variants={itemVariants}
-            className="flex justify-center md:justify-end gap-4"
-          >
-            {[
-              { icon: Github, href: "https://github.com", label: "GitHub" },
-              {
-                icon: Linkedin,
-                href: "https://linkedin.com",
-                label: "LinkedIn",
-              },
-              { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-              { icon: Mail, href: "mailto:hello@example.com", label: "Email" },
-            ].map((social) => (
-              <motion.a
-                key={social.label}
-                href={social.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center h-10 w-10 rounded-full border border-border bg-card/50 text-foreground/60 hover:text-accent hover:border-accent/50 transition-all"
-                whileHover={{ scale: 1.1, rotate: 5 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <social.icon className="h-5 w-5" />
-              </motion.a>
-            ))}
+          {/* Social */}
+          <motion.div variants={fadeInUp}>
+            <h4 className="text-sm font-semibold text-foreground/80 mb-4 uppercase tracking-wider">
+              Connect
+            </h4>
+            <div className="flex gap-3 flex-wrap">
+              {SOCIALS.map((social) => (
+                <motion.a
+                  key={social.label}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center h-10 w-10 rounded-xl border border-border/50 bg-card/30 text-foreground/50 hover:text-accent hover:border-accent/40 hover:bg-accent/5 transition-all duration-200"
+                  whileHover={{ scale: 1.1, y: -2 }}
+                  whileTap={{ scale: 0.9 }}
+                  aria-label={social.label}
+                >
+                  <social.icon className="h-4.5 w-4.5" />
+                </motion.a>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Built With */}
+          <motion.div variants={fadeInUp}>
+            <h4 className="text-sm font-semibold text-foreground/80 mb-4 uppercase tracking-wider">
+              Built With
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {TECH_BADGES.map((tech) => (
+                <span
+                  key={tech}
+                  className="inline-block rounded-full bg-primary/8 border border-primary/10 px-3 py-1 text-xs font-medium text-foreground/50"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
           </motion.div>
         </motion.div>
 
-        {/* Divider */}
-        <div className="my-8 border-t border-border/50" />
-
-        {/* Copyright */}
-        <motion.div
-          variants={itemVariants}
-          className="text-center text-foreground/50 text-sm"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-        >
-          <p>
-            © {currentYear} Samuel Gipit. All rights reserved. • Built with
-            Next.js, React Three Fiber &amp; Framer Motion
+        {/* Bottom bar */}
+        <div className="mt-12 pt-6 border-t border-border/30">
+          <p className="text-center text-foreground/35 text-xs">
+            &copy; {currentYear} Samuel Gipit. All rights reserved.
           </p>
-        </motion.div>
+        </div>
       </div>
     </footer>
   );

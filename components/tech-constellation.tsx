@@ -474,7 +474,7 @@ export default function TechConstellation({
       {/* ── Constellation canvas ── */}
       <div
         ref={containerRef}
-        className="relative w-full max-w-[60rem] mx-auto"
+        className="relative w-full max-w-240 mx-auto"
         style={{ aspectRatio: "1" }}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => {
