@@ -411,7 +411,13 @@ function NodeItem({
 
 // ─── TechConstellation ─────────────────────────────────────────────────────────
 
-export default function TechConstellation() {
+interface TechConstellationProps {
+  onCenterClick?: () => void;
+}
+
+export default function TechConstellation({
+  onCenterClick,
+}: TechConstellationProps) {
   const [mounted, setMounted] = useState(false);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [seed, setSeed] = useState(42);
@@ -439,7 +445,8 @@ export default function TechConstellation() {
 
   const handleCenterClick = useCallback(() => {
     setSeed((prev) => prev + Math.floor(Math.random() * 1000) + 1);
-  }, []);
+    onCenterClick?.();
+  }, [onCenterClick]);
 
   // Parallax motion values
   const rawX = useMotionValue(0);

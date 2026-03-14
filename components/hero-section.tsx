@@ -195,7 +195,11 @@ function InteractiveTerminal() {
 
 // ─── Hero Section ──────────────────────────────────────────────────────────────
 
-export default function HeroSection() {
+interface HeroSectionProps {
+  onProfileClick?: () => void;
+}
+
+export default function HeroSection({ onProfileClick }: HeroSectionProps) {
   return (
     <section className="relative h-screen w-full overflow-hidden bg-linear-to-br from-background via-background to-primary/10">
       {/* 3D particle background */}
@@ -212,7 +216,7 @@ export default function HeroSection() {
         <div className="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-10 lg:gap-20 items-center">
           {/* ── LEFT: Photo + skill constellation ── */}
           <div className="order-2 lg:order-1 flex justify-center">
-            <TechConstellation />
+            <TechConstellation onCenterClick={onProfileClick} />
           </div>
 
           {/* ── RIGHT: Heading + terminal + CTAs ── */}

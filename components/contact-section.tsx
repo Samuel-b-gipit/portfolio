@@ -1,11 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import emailjs from "@emailjs/browser";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Mail, Linkedin, Github, Twitter } from "lucide-react";
 
-export default function ContactSection() {
+interface ContactSectionProps {
+  clickCount?: number;
+}
+
+export default function ContactSection({
+  clickCount = 0,
+}: ContactSectionProps) {
   const { ref, inView } = useInView({ threshold: 0.1, triggerOnce: true });
   const [formData, setFormData] = useState({
     name: "",
@@ -13,6 +20,8 @@ export default function ContactSection() {
     message: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -21,15 +30,31 @@ export default function ContactSection() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // In a real app, you'd send this data to a backend
-    console.log("Form submitted:", formData);
-    setSubmitted(true);
-    setTimeout(() => {
+    setSending(true);
+    setError(null);
+
+    try {
+      await emailjs.send(
+        process.env.EMAILJS_SERVICE_ID!,
+        process.env.EMAILJS_TEMPLATE_ID!,
+        {
+          name: formData.name,
+          email: formData.email,
+          message: formData.message,
+          clickCount: String(clickCount),
+        },
+        process.env.EMAILJS_PUBLIC_KEY!,
+      );
+      setSubmitted(true);
       setFormData({ name: "", email: "", message: "" });
-      setSubmitted(false);
-    }, 3000);
+      setTimeout(() => setSubmitted(false), 4000);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const containerVariants = {
@@ -136,12 +161,16 @@ export default function ContactSection() {
 
                 <motion.button
                   type="submit"
-                  disabled={submitted}
+                  disabled={sending || submitted}
                   className="w-full rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-3 font-semibold text-primary-foreground transition-all hover:shadow-lg hover:shadow-primary/50 disabled:opacity-70"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {submitted ? "Message Sent!" : "Send Message"}
+                  {sending
+                    ? "Sending…"
+                    : submitted
+                      ? "Message Sent!"
+                      : "Send Message"}
                 </motion.button>
 
                 {submitted && (
@@ -151,6 +180,16 @@ export default function ContactSection() {
                     className="rounded-lg border border-accent/50 bg-accent/10 p-4 text-center text-accent"
                   >
                     Thanks for reaching out! I'll get back to you soon.
+                  </motion.div>
+                )}
+
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="rounded-lg border border-red-500/50 bg-red-500/10 p-4 text-center text-red-400"
+                  >
+                    {error}
                   </motion.div>
                 )}
               </form>
