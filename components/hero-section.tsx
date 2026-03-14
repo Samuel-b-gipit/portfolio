@@ -200,8 +200,8 @@ const TW_TITLE = "Software Engineer";
 const TW_HEADING1 = "Building Systems";
 const TW_HEADING2 = "That Scale";
 
-const TYPE_SPEED = 37;
-const DEL_SPEED = 22;
+const TYPE_SPEED = 74;
+const DEL_SPEED = 44;
 const PAUSE_MS = 900;
 const START_DELAY = 850;
 
