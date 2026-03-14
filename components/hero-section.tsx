@@ -5,7 +5,7 @@ import { Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { ArrowDown, Download } from "lucide-react";
 import ParticleScene from "./3d/particle-scene";
-import TechConstellation from "@/components/tech-constellation";
+import FullStackArchitecture from "@/components/full-stack-architecture";
 import { staggerContainer, fadeInUp } from "@/lib/animation-variants";
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -290,9 +290,9 @@ export default function HeroSection({ onProfileClick }: HeroSectionProps) {
             </motion.div>
           </motion.div>
 
-          {/* ── RIGHT: Photo + skill constellation ── */}
+          {/* ── RIGHT: Full-Stack Architecture Diagram ── */}
           <div className="order-2 hidden lg:flex justify-center">
-            <TechConstellation onCenterClick={onProfileClick} />
+            <FullStackArchitecture />
           </div>
         </div>
       </div>
