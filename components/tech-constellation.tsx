@@ -35,16 +35,30 @@ const MIN_NODE_DIST = 1000;
 const NODE_SIZE = 96;
 const CENTER_SIZE = 232;
 
-const TECHS = [
-  { id: "react", label: "React", icon: "/hero/React.png" },
-  { id: "nextjs", label: "Next.js", icon: "/hero/next-js.png" },
-  { id: "typescript", label: "TypeScript", icon: "/hero/typescript.png" },
-  { id: "nodejs", label: "Node.js", icon: "/hero/nodejs.png" },
-  { id: "postgresql", label: "PostgreSQL", icon: "/hero/postgreSQL.png" },
-  { id: "prisma", label: "Prisma", icon: "/hero/prisma.png" },
-  { id: "express", label: "Express", icon: "/hero/express.png" },
-  { id: "tailwind", label: "Tailwind", icon: "/hero/tailwind.png" },
-  { id: "AWS", label: "AWS", icon: "/hero/AWS.png" },
+// ─── Tech Stack by Architecture Layer ──────────────────────────────────────────
+
+interface TechNode {
+  id: string;
+  label: string;
+  icon: string;
+  layer: "frontend" | "api" | "backend"; // Layer for positioning
+}
+
+const TECHS: TechNode[] = [
+  // ── Frontend Layer (Top) ──
+  { id: "react", label: "React", icon: "/hero/React.png", layer: "frontend" },
+  { id: "nextjs", label: "Next.js", icon: "/hero/next-js.png", layer: "frontend" },
+  { id: "tailwind", label: "Tailwind", icon: "/hero/tailwind.png", layer: "frontend" },
+
+  // ── API Layer (Middle) ──
+  { id: "typescript", label: "TypeScript", icon: "/hero/typescript.png", layer: "api" },
+  { id: "express", label: "Express", icon: "/hero/express.png", layer: "api" },
+
+  // ── Backend Layer (Bottom) ──
+  { id: "nodejs", label: "Node.js", icon: "/hero/nodejs.png", layer: "backend" },
+  { id: "postgresql", label: "PostgreSQL", icon: "/hero/postgreSQL.png", layer: "backend" },
+  { id: "prisma", label: "Prisma", icon: "/hero/prisma.png", layer: "backend" },
+  { id: "AWS", label: "AWS", icon: "/hero/AWS.png", layer: "backend" },
 ] as const;
 
 const PULSE_DURATIONS = [3.2, 4.1, 3.7, 5.0, 2.8, 4.4, 3.5, 4.8, 3.1, 4.6];
@@ -59,42 +73,69 @@ function makeRng(seed: number) {
   };
 }
 
-// ─── Node layout ───────────────────────────────────────────────────────────────
+// ─── Node layout with architectural layers ──────────────────────────────────
 
 function generateNodePositions(seed: number): Point[] {
   const rng = makeRng(seed);
   const positions: Point[] = [];
 
-  for (let i = 0; i < TECHS.length; i++) {
-    let placed = false;
+  // Define layer Y positions (top to bottom: frontend → api → backend)
+  const layerYMap = {
+    frontend: CENTER.y - 280, // Top
+    api: CENTER.y, // Middle
+    backend: CENTER.y + 280, // Bottom
+  };
 
-    for (let attempt = 0; attempt < 500; attempt++) {
-      const angle = rng() * Math.PI * 2;
-      const radius = MIN_RADIUS + rng() * (MAX_RADIUS - MIN_RADIUS);
-      const x = CENTER.x + Math.cos(angle) * radius;
-      const y = CENTER.y + Math.sin(angle) * radius;
+  // Group techs by layer
+  const techsByLayer = {
+    frontend: TECHS.filter((t) => t.layer === "frontend"),
+    api: TECHS.filter((t) => t.layer === "api"),
+    backend: TECHS.filter((t) => t.layer === "backend"),
+  };
 
-      const pad = NODE_SIZE / 2 + 4;
-      if (x < pad || x > SVG_SIZE - pad || y < pad || y > SVG_SIZE - pad)
-        continue;
+  // Generate positions for each layer
+  const allLayers = Object.entries(techsByLayer) as Array<
+    [keyof typeof techsByLayer, typeof TECHS]
+  >;
 
-      const tooClose = positions.some(
-        (p) => Math.hypot(p.x - x, p.y - y) < MIN_NODE_DIST,
-      );
-      if (tooClose) continue;
+  for (const [layerKey, layerTechs] of allLayers) {
+    const baseY = layerYMap[layerKey];
 
-      positions.push({ x, y });
-      placed = true;
-      break;
-    }
+    for (let i = 0; i < layerTechs.length; i++) {
+      let placed = false;
 
-    if (!placed) {
-      const a = (i / TECHS.length) * Math.PI * 2 + rng() * 0.5;
-      const r = MIN_RADIUS + rng() * (MAX_RADIUS - MIN_RADIUS) * 0.5;
-      positions.push({
-        x: CENTER.x + Math.cos(a) * r,
-        y: CENTER.y + Math.sin(a) * r,
-      });
+      for (let attempt = 0; attempt < 500; attempt++) {
+        // Spread nodes horizontally within the layer with vertical jitter
+        const angle = rng() * Math.PI * 2;
+        const radius = 200 + rng() * (MAX_RADIUS - MIN_RADIUS - 400);
+        const x = CENTER.x + Math.cos(angle) * radius;
+        const y = baseY + (rng() - 0.5) * 180; // Vertical jitter within layer
+
+        const pad = NODE_SIZE / 2 + 4;
+        if (x < pad || x > SVG_SIZE - pad || y < pad || y > SVG_SIZE - pad)
+          continue;
+
+        const tooClose = positions.some(
+          (p) => Math.hypot(p.x - x, p.y - y) < MIN_NODE_DIST,
+        );
+        if (tooClose) continue;
+
+        positions.push({ x, y });
+        placed = true;
+        break;
+      }
+
+      if (!placed) {
+        // Fallback: place at reasonable positions within the layer
+        const angleInLayer =
+          (i / Math.max(layerTechs.length, 1)) * Math.PI * 2 +
+          rng() * 0.5;
+        const r = 300 + rng() * (MAX_RADIUS - MIN_RADIUS - 400);
+        positions.push({
+          x: CENTER.x + Math.cos(angleInLayer) * r,
+          y: baseY + (rng() - 0.5) * 150,
+        });
+      }
     }
   }
 
@@ -140,44 +181,103 @@ function edgeCrossesAnyNode(
   return false;
 }
 
-// ─── Edge generation (proximity-based, no node-crossing) ──────────────────────
+// ─── Edge generation with architectural flow (FE → API → BE) ──────────────────
 
 function generateEdges(positions: Point[]): Edge[] {
   const edgeSet = new Set<string>();
 
-  // Each node connects to up to 3 nearest neighbours, skipping edges that
-  // would visually pass through an unrelated node.
-  for (let i = 0; i < positions.length; i++) {
-    const nearest = positions
-      .map((p, j) => ({
-        j,
-        d: Math.hypot(p.x - positions[i].x, p.y - positions[i].y),
-      }))
-      .filter((e) => e.j !== i)
-      .sort((a, b) => a.d - b.d);
+  // Helper to get layer of a tech
+  function getLayer(techIdx: number): "frontend" | "api" | "backend" | null {
+    if (techIdx >= TECHS.length) return null;
+    return TECHS[techIdx].layer;
+  }
 
-    let added = 0;
-    for (const { j } of nearest) {
-      if (added >= 3) break;
-      const key = `${Math.min(i, j)}-${Math.max(i, j)}`;
-      if (edgeSet.has(key)) {
-        added++;
-        continue;
-      }
-      if (!edgeCrossesAnyNode(i, j, positions)) {
-        edgeSet.add(key);
-        added++;
+  // Group indices by layer
+  const layerIndices = {
+    frontend: TECHS.map((t, i) => (t.layer === "frontend" ? i : -1)).filter(
+      (i) => i >= 0,
+    ),
+    api: TECHS.map((t, i) => (t.layer === "api" ? i : -1)).filter((i) => i >= 0),
+    backend: TECHS.map((t, i) => (t.layer === "backend" ? i : -1)).filter(
+      (i) => i >= 0,
+    ),
+  };
+
+  // 1. Connect nodes within the same layer (intra-layer connections)
+  for (const indices of Object.values(layerIndices)) {
+    for (let i = 0; i < indices.length; i++) {
+      const nearest = indices
+        .map((j) => ({
+          j,
+          d: Math.hypot(
+            positions[j].x - positions[indices[i]].x,
+            positions[j].y - positions[indices[i]].y,
+          ),
+        }))
+        .filter((e) => e.j !== indices[i])
+        .sort((a, b) => a.d - b.d)
+        .slice(0, 1); // Connect to 1 nearest in same layer
+
+      for (const { j } of nearest) {
+        const key = `${Math.min(indices[i], j)}-${Math.max(indices[i], j)}`;
+        if (!edgeSet.has(key) && !edgeCrossesAnyNode(indices[i], j, positions)) {
+          edgeSet.add(key);
+        }
       }
     }
   }
 
-  // Verify every node has at least 2 connections, adding more if needed
+  // 2. Connect across layers: Frontend → API → Backend (directional flow)
+  // Frontend to API
+  for (const feIdx of layerIndices.frontend) {
+    const nearest = layerIndices.api
+      .map((apiIdx) => ({
+        j: apiIdx,
+        d: Math.hypot(
+          positions[apiIdx].x - positions[feIdx].x,
+          positions[apiIdx].y - positions[feIdx].y,
+        ),
+      }))
+      .sort((a, b) => a.d - b.d)
+      .slice(0, 1);
+
+    for (const { j } of nearest) {
+      const key = `${Math.min(feIdx, j)}-${Math.max(feIdx, j)}`;
+      if (!edgeSet.has(key) && !edgeCrossesAnyNode(feIdx, j, positions)) {
+        edgeSet.add(key);
+      }
+    }
+  }
+
+  // API to Backend
+  for (const apiIdx of layerIndices.api) {
+    const nearest = layerIndices.backend
+      .map((beIdx) => ({
+        j: beIdx,
+        d: Math.hypot(
+          positions[beIdx].x - positions[apiIdx].x,
+          positions[beIdx].y - positions[apiIdx].y,
+        ),
+      }))
+      .sort((a, b) => a.d - b.d)
+      .slice(0, 2); // Connect to 2 nearest backend nodes
+
+    for (const { j } of nearest) {
+      const key = `${Math.min(apiIdx, j)}-${Math.max(apiIdx, j)}`;
+      if (!edgeSet.has(key) && !edgeCrossesAnyNode(apiIdx, j, positions)) {
+        edgeSet.add(key);
+      }
+    }
+  }
+
+  // 3. Ensure every node has at least 2 connections, adding proximity-based edges
   const connectionCount = new Map<number, number>();
   for (const key of edgeSet) {
     const [a, b] = key.split("-").map(Number);
     if (!isNaN(a)) connectionCount.set(a, (connectionCount.get(a) ?? 0) + 1);
     if (!isNaN(b)) connectionCount.set(b, (connectionCount.get(b) ?? 0) + 1);
   }
+
   for (let i = 0; i < positions.length; i++) {
     if ((connectionCount.get(i) ?? 0) < 2) {
       const nearest = positions
@@ -186,7 +286,9 @@ function generateEdges(positions: Point[]): Edge[] {
           d: Math.hypot(p.x - positions[i].x, p.y - positions[i].y),
         }))
         .filter((e) => e.j !== i)
-        .sort((a, b) => a.d - b.d);
+        .sort((a, b) => a.d - b.d)
+        .slice(0, 3);
+
       for (const { j } of nearest) {
         const key = `${Math.min(i, j)}-${Math.max(i, j)}`;
         if (!edgeSet.has(key) && !edgeCrossesAnyNode(i, j, positions)) {
@@ -199,13 +301,15 @@ function generateEdges(positions: Point[]): Edge[] {
     }
   }
 
-  // 3 closest nodes get a spoke to centre (skip if it crosses a node)
-  const closestToCenter = positions
-    .map((p, i) => ({ i, d: Math.hypot(p.x - CENTER.x, p.y - CENTER.y) }))
-    .sort((a, b) => a.d - b.d);
+  // 4. Add 2-3 spokes to center from different layers
+  const spokeIndices = [
+    layerIndices.frontend[0],
+    layerIndices.api[0],
+    layerIndices.backend[0],
+  ].filter((idx) => idx !== undefined);
 
   let spokes = 0;
-  for (const { i } of closestToCenter) {
+  for (const i of spokeIndices) {
     if (spokes >= 3) break;
     if (!edgeCrossesAnyNode(-1, i, positions)) {
       edgeSet.add(`c-${i}`);
