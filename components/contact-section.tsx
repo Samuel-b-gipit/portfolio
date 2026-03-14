@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import emailjs from "@emailjs/browser";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Mail, Linkedin, Github, Twitter } from "lucide-react";
@@ -22,6 +21,7 @@ export default function ContactSection({
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rateLimited, setRateLimited] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -34,19 +34,27 @@ export default function ContactSection({
     e.preventDefault();
     setSending(true);
     setError(null);
+    setRateLimited(false);
 
     try {
-      await emailjs.send(
-        process.env.EMAILJS_SERVICE_ID!,
-        process.env.EMAILJS_TEMPLATE_ID!,
-        {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           name: formData.name,
           email: formData.email,
           message: formData.message,
-          clickCount: String(clickCount),
-        },
-        process.env.EMAILJS_PUBLIC_KEY!,
-      );
+          clickCount,
+        }),
+      });
+
+      if (res.status === 429) {
+        setRateLimited(true);
+        return;
+      }
+
+      if (!res.ok) throw new Error();
+
       setSubmitted(true);
       setFormData({ name: "", email: "", message: "" });
       setTimeout(() => setSubmitted(false), 4000);
@@ -162,24 +170,30 @@ export default function ContactSection({
                 <motion.button
                   type="submit"
                   disabled={sending || submitted}
-                  className="w-full rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-3 font-semibold text-primary-foreground transition-all hover:shadow-lg hover:shadow-primary/50 disabled:opacity-70"
+                  className="w-full rounded-lg bg-gradient-to-r from-primary to-accent px-6 py-3 font-semibold text-primary-foreground transition-all hover:shadow-lg hover:shadow-primary/50 disabled:opacity-70 disabled:cursor-not-allowed"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  {sending
-                    ? "Sending…"
-                    : submitted
-                      ? "Message Sent!"
-                      : "Send Message"}
+                  {sending ? "Sending…" : submitted ? "Message Sent!" : "Send Message"}
                 </motion.button>
 
                 {submitted && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="rounded-lg border border-accent/50 bg-accent/10 p-4 text-center text-accent"
+                    className="rounded-lg border border-green-500/50 bg-green-500/10 p-4 text-center text-green-400"
                   >
                     Thanks for reaching out! I'll get back to you soon.
+                  </motion.div>
+                )}
+
+                {rateLimited && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-4 text-center text-yellow-400 text-sm"
+                  >
+                    You already sent a message recently. Please wait 5 minutes before trying again.
                   </motion.div>
                 )}
 
