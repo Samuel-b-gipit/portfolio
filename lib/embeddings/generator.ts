@@ -18,7 +18,7 @@ const EMBEDDING_MODEL = google.textEmbeddingModel("gemini-embedding-001");
 
 /**
  * Generate embeddings for text chunks using Google Gemini
- * Uses text-embedding-004 model via AI SDK
+ * Uses gemini-embedding-001 model via AI SDK
  */
 export async function generateEmbeddings(
   chunks: TextChunk[],
