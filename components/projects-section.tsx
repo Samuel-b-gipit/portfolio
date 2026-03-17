@@ -35,22 +35,23 @@ const FILTER_OPTIONS = [
 
 const PROJECTS: Project[] = [
   {
-    title: "AI-Assisted Workflow Builder",
+    title: "Personal Document AI",
     description:
-      "Intelligent workflow system that dynamically generates approval chains and validation logic based on organizational rules.",
-    image: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      "RAG-powered document Q&A platform. Upload PDFs, text, or Markdown files and chat with them — the system retrieves the most relevant chunks and grounds every AI response in your actual document content.",
+    image: "/DocChat.png",
     technologies: [
       "Next.js",
       "TypeScript",
-      "Node.js",
-      "PostgreSQL",
-      "OpenAI API",
+      "FastAPI",
+      "Groq",
+      "Upstash Vector",
+      "LangChain",
     ],
     category: "ai",
     featured: true,
-    url: process.env.NEXT_PUBLIC_PROJECT_WORKFLOW_BUILDER_URL ?? "#",
+    url: "https://personal-ai-frontend.vercel.app/",
     links: {
-      github: process.env.NEXT_PUBLIC_PROJECT_WORKFLOW_BUILDER_URL,
+      demo: "https://personal-ai-frontend.vercel.app/",
     },
   },
   {
@@ -174,7 +175,12 @@ export default function ProjectsSection() {
                   key={project.title}
                   variants={cardVariants}
                   layout
-                  className="group relative overflow-hidden rounded-2xl border border-border/30 bg-card/40 backdrop-blur-sm flex flex-col transition-all duration-300 hover:border-accent/30 hover:shadow-xl hover:shadow-primary/5"
+                  onClick={() =>
+                    project.url &&
+                    project.url !== "#" &&
+                    window.open(project.url, "_blank", "noopener,noreferrer")
+                  }
+                  className="group relative overflow-hidden rounded-2xl border border-border/30 bg-card/40 backdrop-blur-sm flex flex-col transition-all duration-300 hover:border-accent/30 hover:shadow-xl hover:shadow-primary/5 cursor-pointer"
                 >
                   {/* Featured badge */}
                   {project.featured && (
@@ -231,6 +237,7 @@ export default function ProjectsSection() {
                             href={project.links.github}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
                             className="inline-flex items-center gap-1.5 text-sm text-foreground/50 hover:text-accent transition-colors"
                           >
                             <Github className="h-4 w-4" />
@@ -242,6 +249,7 @@ export default function ProjectsSection() {
                             href={project.links.demo}
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
                             className="inline-flex items-center gap-1.5 text-sm text-foreground/50 hover:text-accent transition-colors"
                           >
                             <ExternalLink className="h-4 w-4" />
