@@ -28,6 +28,7 @@ interface Project {
 const FILTER_OPTIONS = [
   { id: "all", label: "All" },
   { id: "fullstack", label: "Full-Stack" },
+  { id: "frontend", label: "Frontend" },
   { id: "backend", label: "Backend" },
   { id: "ai", label: "AI / ML" },
   { id: "saas", label: "SaaS" },
@@ -74,15 +75,21 @@ const PROJECTS: Project[] = [
     },
   },
   {
-    title: "Contract Versioning System",
+    title: "Atelier Store",
     description:
-      "Standalone contract lifecycle management with version tracking, atomic uniqueness enforcement, and concurrency safeguards.",
-    image: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-    technologies: ["Node.js", "PostgreSQL", "Prisma", "Express"],
-    category: "backend",
-    url: process.env.NEXT_PUBLIC_PROJECT_CONTRACT_VERSIONING_URL ?? "#",
+      "Premium frontend-only luxury e-commerce storefront with catalog browsing, persistent cart and wishlist, multi-step checkout, and URL-driven filtering — all client-side with no backend.",
+    image: "/e-commerce.png",
+    technologies: [
+      "React",
+      "JavaScript",
+      "Vite",
+      "React Router",
+      "CSS Modules",
+    ],
+    category: "frontend",
+    url: "https://e-commerce-fe-only.vercel.app/",
     links: {
-      github: process.env.NEXT_PUBLIC_PROJECT_CONTRACT_VERSIONING_URL,
+      demo: "https://e-commerce-fe-only.vercel.app/",
     },
   },
   {

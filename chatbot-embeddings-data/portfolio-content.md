@@ -42,20 +42,20 @@ Demo: [Live Demo Link]
 
 ---
 
-## Contract Versioning System (Standalone)
+## Atelier Store — Luxury E-Commerce Frontend
 
-Standalone contract lifecycle management system with version tracking and concurrency safeguards.
+Premium frontend-only luxury e-commerce storefront built with React. Simulates a complete shopping experience with no backend.
 
-Tech Stack: Node.js, PostgreSQL, Prisma, Express
+Tech Stack: React 18, JavaScript, Vite, React Router DOM v6, CSS Modules
 
-- Unique contract number atomic enforcement
-- Contract version history (v1, v2, v3...)
-- Draft → Pending → Approved → Archived lifecycle
-- Soft delete and restoration logic
-- Conflict detection for concurrent edits
+- Catalog browsing with URL-driven category and keyword filtering
+- Persistent cart and wishlist via localStorage
+- Multi-step checkout flow (shipping details → payment → order confirmation)
+- Product detail page with image gallery, color swatches, and stock states
+- Slide-in cart overlay, toast notifications, and announcement bar
+- 6 luxury products across 6 categories (Fragrance, Accessories, Watches, Leather Goods, Home, Wellness)
 
-Code: [GitHub Link]  
-Demo: [Live Demo Link]
+Demo: https://e-commerce-fe-only.vercel.app/
 
 ---
 
